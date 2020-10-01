@@ -1,21 +1,85 @@
-Triage Client
-=============
+Hatching Triage
+===============
 
-This is the client for the [Hatching Triage](https://tria.ge) malware sandbox.
-
+This repository features a command-line client and API for interacting with
+[Hatching Triage](https://tria.ge/), an automated malware analysis sandbox.
 
 ## Getting Started
+
+### Installing the Go client
+
+```bash
+$ go get github.com/hatching/triage/go/cmd/triage
+```
+
+### Installing the Python client
+
+```bash
+$ pip install hatching-triage
+```
+
+## Setting up authentication
+
 When you have installed the client, you need to set the API key so it can
 authenticate itself with Triage. You can do so by using the `authenticate`
 subcommand:
-```
-./triage authenticate -t <API key>
-```
-You can find the API key on your [account page](https://tria.ge/account). Do
-note that you need API permissions on your user account for a key to appear.
 
+```bash
+$ triage authenticate <API key>
+```
+
+You can find the API key on your [account page](https://tria.ge/account). Do
+note that you need to have a Researcher account on your user account for a key
+to appear.
 
 ## Usage
-```
-triage -help
+
+After installing and authentication, various subcommands are available for
+interacting with the Hatching Triage API. Note that any submitted samples will
+end up in our public cloud, unless otherwise configured, and therefore will
+be accessible by everyone browsing to https://tria.ge/
+
+```bash
+$ triage -help
+Usage of triage:
+
+  authenticate [token] [flags]
+
+    Stores credentials for Triage.
+
+  submit [url/file] [flags]
+
+    Submit a new sample file or URL.
+
+  select-profile [sample]
+
+    Interactively lets you select profiles for samples that have been submitted
+    in interactive mode. If an archive file was submitted, you will also be
+    promted to select the files to analyze from the archive.
+
+  list [flags]
+
+    Show the latest samples that have been submitted.
+
+  file [sample] [task] [file] [flags]
+
+    Download task related files.
+
+  archive [sample] [flags]
+
+    Download all task related files as an archive.
+
+  delete [sample]
+
+    Delete a sample.
+
+  report [sample] [flags]
+
+    Query reports for a (finished) analysis.
+
+  create-profile [flags]
+
+  delete-profile [flags]
+
+  list-profiles [flags]
 ```
