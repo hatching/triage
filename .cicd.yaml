@@ -1,0 +1,13 @@
+# Copyright (C) 2020 Hatching B.V
+# All rights reserved.
+
+stages:
+  - test
+
+jobs:
+  test:
+    stage: test
+    image: hatching.io/cicd-test:latest
+    script:
+      - cd go && make
+      - make test
