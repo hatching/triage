@@ -90,7 +90,7 @@ def prompt_select_profile(c, sample):
         pick, defaultSelection = prompt_select_files(static)
 
     # Fetch profiles before determining whether we should use automatic
-	#  profiles. If no profiles are available, fall back to automatic profiles.
+    #  profiles. If no profiles are available, fall back to automatic profiles.
     profiles = [x for x in c.profiles()]
     if defaultSelection or len(profiles) == 0:
         if len(profiles) == 0:
@@ -265,10 +265,10 @@ def report(sample, static, task):
         print()
         for k, task in r.get("tasks", {}).items():
             print(" ", task["name"])
-            print("    score:", task["score"])
+            print("    score:", task.get("score", "N/A"))
             if task["kind"] != "static":
                 print("    platform:", task["platform"])
-            print("    tags:", task["tags"])
+            print("    tags:", task.get("tags", []))
 
 @cli.command("create-profile")
 @click.option("--name", required=True, help="The name of the new profile")
