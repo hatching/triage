@@ -467,11 +467,30 @@ func (c *Cli) listSamples(arg0 string, num int, public bool) {
 		for _, t := range sample.Tasks {
 			tasks = append(tasks, t.ID)
 		}
+		var target string
+
 		if sample.URL != "" {
-			fmt.Printf("%s, %v, %s: %s\n", sample.ID, tasks, sample.Status, sample.URL)
+			target = sample.URL
 		} else {
-			fmt.Printf("%s, %v, %s: %s\n", sample.ID, tasks, sample.Status, sample.Filename)
+			target = sample.Filename
 		}
+
+		if sample.Status == triage.SampleStatusReported {
+			overview, err := c.client.SampleOverviewReport(context.Background(), sample.ID)
+			if err != nil {
+				c.fatal(err)
+			}
+
+			if len(overview.Analysis.Family) >= 1 {
+				fmt.Printf("%v\t%s, %v\t%s\n", overview.Analysis.Score, sample.ID, overview.Analysis.Family, target)
+			} else {
+				fmt.Printf("%v\t%s\t%s\n", overview.Analysis.Score, sample.ID, target)
+			}
+
+		} else {
+			fmt.Printf(".\t%s\t%s\n", sample.ID, sample.Filename)
+		}
+
 	}
 }
 
