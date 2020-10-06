@@ -516,8 +516,8 @@ func (c *Cli) sampleReport(arg0, sampleID string, static bool, taskID string) {
 		if err != nil {
 			c.fatal(err)
 		}
-		if len(staticReport.Files) == 0 {
-			c.fatalf("No static report found. %v", staticReport)
+		if staticReport.Sample.Kind == "url" {
+			fmt.Printf("%s: %s\n", staticReport.Sample.Kind, staticReport.Sample.Target)
 		}
 		for _, f := range staticReport.Files {
 			str := "(selected)"

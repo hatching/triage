@@ -5,10 +5,40 @@ package types
 
 // static.json
 type (
+	ReportSample struct {
+		ID        string `json:"sample"`
+		Kind      string `json:"kind,omitempty"`
+		Size      uint64 `json:"size,omitempty"`
+		Target    string `json:"target,omitempty"`
+		Submitted string `json:"submitted,omitempty"`
+	}
+	ReportTask struct {
+		ID     string `json:"task"`
+		Target string `json:"target,omitempty"`
+	}
+	ReportAnalysis struct {
+		Reported string   `json:"reported,omitempty"`
+		Score    int      `json:"score,omitempty"`
+		Tags     []string `json:"tags,omitempty"`
+	}
+	Report struct {
+		Files       []*FileReport `json:"files"`
+		UnpackCount int           `json:"unpack_count"`
+		ErrorCount  int           `json:"error_count"`
+	}
 	StaticReport struct {
-		Files       []FileReport `json:"files"`
-		UnpackCount int          `json:"unpack_count"`
-		ErrorCount  int          `json:"error_count"`
+		Version string `json:"version"`
+
+		Sample   ReportSample   `json:"sample"`
+		Task     ReportTask     `json:"task"`
+		Analysis ReportAnalysis `json:"analysis"`
+
+		Signatures []*Signature `json:"signatures,omitempty"`
+		Report
+		CompatKind string `json:"kind,omitempty"`
+
+		Errors    []ReportedFailure `json:"errors,omitempty"`
+		Extracted []*Extract        `json:"extracted,omitempty"`
 	}
 	FileReport struct {
 		Name    string `json:"filename"`
