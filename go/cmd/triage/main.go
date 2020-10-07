@@ -311,6 +311,19 @@ func (c *Cli) selectProfile(arg0, sampleID string) {
 	c.promptSelectProfile(c.client, sampleID)
 }
 
+type PickType struct {
+	name string
+	path string
+}
+
+func pickPath(pick []PickType) []string {
+	var data []string
+	for _, p := range pick {
+		data = append(data, p.path)
+	}
+	return data
+}
+
 func (c *Cli) promptSelectProfile(client triage.Client, sampleID string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -341,12 +354,19 @@ eventLoop:
 	if err != nil {
 		c.fatal(err)
 	}
-	var pick []string
+
+	var pick []PickType
 	defaultSelection := false
 	if staticReport.Sample.Kind == "url" {
-		pick = append(pick, staticReport.Sample.Target)
+		pick = append(pick, PickType{
+			staticReport.Sample.Target,
+			staticReport.Sample.Target,
+		})
 	} else if len(staticReport.Files) == 1 {
-		pick = append(pick, staticReport.Files[0].RelPath)
+		pick = append(pick, PickType{
+			staticReport.Files[0].Name,
+			staticReport.Files[0].RelPath,
+		})
 	} else {
 		pick, defaultSelection = c.promptSelectFiles(*staticReport)
 	}
@@ -361,7 +381,7 @@ eventLoop:
 		if len(profiles) == 0 {
 			fmt.Fprintf(os.Stderr, "No profiles are available, using automatic profiles instead.")
 		}
-		if err := client.SetSampleProfileAutomatically(ctx, sampleID, pick); err != nil {
+		if err := client.SetSampleProfileAutomatically(ctx, sampleID, pickPath(pick)); err != nil {
 			c.fatal(err)
 		}
 		os.Exit(0)
@@ -369,7 +389,7 @@ eventLoop:
 	profileSelections := c.promptSelectProfilesForFiles(profiles, pick)
 	if len(profileSelections) == 0 {
 		fmt.Println("Profile selection skipped.. choosing automatically")
-		if err := client.SetSampleProfileAutomatically(ctx, sampleID, pick); err != nil {
+		if err := client.SetSampleProfileAutomatically(ctx, sampleID, pickPath(pick)); err != nil {
 			c.fatal(err)
 		}
 		os.Exit(0)
@@ -379,7 +399,7 @@ eventLoop:
 	}
 }
 
-func (c *Cli) promptSelectFiles(staticReport types.StaticReport) ([]string, bool) {
+func (c *Cli) promptSelectFiles(staticReport types.StaticReport) ([]PickType, bool) {
 	fmt.Printf("Please select the files from the archive to analyze.\n")
 	fmt.Printf("Leave blank to continue with the emphasized files and automatic profiles.\n")
 	selectionIndices := promptSelectOptions(
@@ -388,26 +408,32 @@ func (c *Cli) promptSelectFiles(staticReport types.StaticReport) ([]string, bool
 	)
 	if len(selectionIndices) == 0 {
 		fmt.Printf("Using default selection\n")
-		pick := make([]string, 0, len(staticReport.Files))
+		pick := make([]PickType, 0, len(staticReport.Files))
 		for _, f := range staticReport.Files {
 			if f.Selected {
-				pick = append(pick, f.RelPath)
+				pick = append(pick, PickType{
+					f.Name,
+					f.RelPath,
+				})
 			}
 		}
 		return pick, true
 	}
 
-	pick := make([]string, 0, len(selectionIndices))
+	pick := make([]PickType, 0, len(selectionIndices))
 	for _, i := range selectionIndices {
-		pick = append(pick, staticReport.Files[i].RelPath)
+		pick = append(pick, PickType{
+			staticReport.Files[i].Name,
+			staticReport.Files[i].RelPath,
+		})
 	}
 	return pick, false
 }
 
-func (c *Cli) promptSelectProfilesForFiles(profiles []triage.Profile, pick []string) []triage.ProfileSelection {
+func (c *Cli) promptSelectProfilesForFiles(profiles []triage.Profile, pick []PickType) []triage.ProfileSelection {
 	profileSelections := []triage.ProfileSelection{}
-	for _, filename := range pick {
-		fmt.Printf("\nPlease select the profiles to use for %q\n", filename)
+	for _, p := range pick {
+		fmt.Printf("\nPlease select the profiles to use for %q\n", p.name)
 		selectionIndices := promptSelectOptions(
 			selectProfileOptions(profiles),
 			func(s []int) bool { return true },
@@ -416,7 +442,7 @@ func (c *Cli) promptSelectProfilesForFiles(profiles []triage.Profile, pick []str
 		for _, i := range selectionIndices {
 			profileSelections = append(profileSelections, triage.ProfileSelection{
 				Profile: profiles[i].ID,
-				Pick:    filename,
+				Pick:    p.path,
 			})
 		}
 	}
