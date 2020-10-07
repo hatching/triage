@@ -342,11 +342,14 @@ eventLoop:
 		c.fatal(err)
 	}
 	var pick []string
-	var defaultSelection bool
-	if len(staticReport.Files) >= 1 {
+	defaultSelection := false
+	if staticReport.Sample.Kind == "url" {
+		pick = append(pick, staticReport.Sample.Target)
+	} else if len(staticReport.Files) == 1 {
+		pick = append(pick, staticReport.Files[0].RelPath)
+	} else {
 		pick, defaultSelection = c.promptSelectFiles(*staticReport)
 	}
-
 	// Fetch profiles before determining whether we should use automatic
 	// profiles. If no profiles are available, fall back to automatic profiles.
 	profiles, err := client.Profiles(ctx)
@@ -363,13 +366,13 @@ eventLoop:
 		}
 		os.Exit(0)
 	}
-
 	profileSelections := c.promptSelectProfilesForFiles(profiles, pick)
 	if len(profileSelections) == 0 {
 		fmt.Println("Profile selection skipped.. choosing automatically")
 		if err := client.SetSampleProfileAutomatically(ctx, sampleID, pick); err != nil {
 			c.fatal(err)
 		}
+		os.Exit(0)
 	}
 	if err := client.SetSampleProfile(ctx, sampleID, profileSelections); err != nil {
 		c.fatal(err)
@@ -407,7 +410,7 @@ func (c *Cli) promptSelectProfilesForFiles(profiles []triage.Profile, pick []str
 		fmt.Printf("\nPlease select the profiles to use for %q\n", filename)
 		selectionIndices := promptSelectOptions(
 			selectProfileOptions(profiles),
-			func(s []int) bool { return len(s) > 0 },
+			func(s []int) bool { return true },
 		)
 
 		for _, i := range selectionIndices {
