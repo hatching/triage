@@ -376,24 +376,20 @@ eventLoop:
 	if err != nil {
 		c.fatal(err)
 	}
+	var profileSelections []triage.ProfileSelection
+	if !defaultSelection {
+		profileSelections = c.promptSelectProfilesForFiles(profiles, pick)
+		defaultSelection = len(profileSelections) == 0
+	}
 
-	if defaultSelection || len(profiles) == 0 {
-		if len(profiles) == 0 {
-			fmt.Fprintf(os.Stderr, "No profiles are available, using automatic profiles instead.")
-		}
+	if defaultSelection {
+		fmt.Println("Using default selection.")
 		if err := client.SetSampleProfileAutomatically(ctx, sampleID, pickPath(pick)); err != nil {
 			c.fatal(err)
 		}
 		os.Exit(0)
 	}
-	profileSelections := c.promptSelectProfilesForFiles(profiles, pick)
-	if len(profileSelections) == 0 {
-		fmt.Println("Profile selection skipped.. choosing automatically")
-		if err := client.SetSampleProfileAutomatically(ctx, sampleID, pickPath(pick)); err != nil {
-			c.fatal(err)
-		}
-		os.Exit(0)
-	}
+
 	if err := client.SetSampleProfile(ctx, sampleID, profileSelections); err != nil {
 		c.fatal(err)
 	}
@@ -407,7 +403,6 @@ func (c *Cli) promptSelectFiles(staticReport types.StaticReport) ([]PickType, bo
 		func([]int) bool { return true },
 	)
 	if len(selectionIndices) == 0 {
-		fmt.Printf("Using default selection\n")
 		pick := make([]PickType, 0, len(staticReport.Files))
 		for _, f := range staticReport.Files {
 			if f.Selected {
@@ -432,11 +427,20 @@ func (c *Cli) promptSelectFiles(staticReport types.StaticReport) ([]PickType, bo
 
 func (c *Cli) promptSelectProfilesForFiles(profiles []triage.Profile, pick []PickType) []triage.ProfileSelection {
 	profileSelections := []triage.ProfileSelection{}
+
+	// not able to choose default profile selection if there are multiple files to pick (archive)
+	var f func(s []int) bool
+	if len(pick) == 1 {
+		f = func(s []int) bool { return true }
+	} else {
+		f = func(s []int) bool { return len(s) > 0 }
+	}
+
 	for _, p := range pick {
 		fmt.Printf("\nPlease select the profiles to use for %q\n", p.name)
 		selectionIndices := promptSelectOptions(
 			selectProfileOptions(profiles),
-			func(s []int) bool { return true },
+			f,
 		)
 
 		for _, i := range selectionIndices {
