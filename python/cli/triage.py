@@ -117,8 +117,9 @@ def prompt_select_profile(c, sample):
     # Fetch profiles before determining whether we should use automatic
     #  profiles. If no profiles are available, fall back to automatic profiles.
     profiles = [x for x in c.profiles()]
-    profile_selections = []
+    default_selection = (len(profiles) == 0)
 
+    profile_selections = []
     if not default_selection:
         profile_selections = prompt_select_profiles_for_files(profiles, pick)
         default_selection = (len(profile_selections) == 0)

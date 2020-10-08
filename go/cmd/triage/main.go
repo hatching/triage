@@ -376,6 +376,8 @@ eventLoop:
 	if err != nil {
 		c.fatal(err)
 	}
+	defaultSelection = len(profiles) == 0
+
 	var profileSelections []triage.ProfileSelection
 	if !defaultSelection {
 		profileSelections = c.promptSelectProfilesForFiles(profiles, pick)
