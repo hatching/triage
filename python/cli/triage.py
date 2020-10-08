@@ -196,12 +196,27 @@ def select_profile(sample):
 def list_samples(public, n):
     c = client_from_env()
     for i in c.public_samples(max=n) if public else c.owned_samples(max=n):
-        print("%s, %s, %s: %s" % (
-            i["id"],
-            [x["id"] for x in i.get("tasks", [])],
-            i["status"],
-            i["url"] if i.get("url") else i.get("filename", "-")
-        ))
+        target = i["url"] if i.get("url") else i.get("filename", "-")
+        if i["status"] == "reported":
+            overview = c.overview_report(i["id"])
+            if len(overview["analysis"].get("family", [])) >= 1:
+                print("%s\t%s, %s\t%s" % (
+                    overview["analysis"]["score"],
+                    i["id"],
+                    overview["analysis"]["family"],
+                    target
+                ))
+            else:
+                print("%s\t%s\t%s" % (
+                    overview["analysis"]["score"],
+                    i["id"],
+                    target
+                ))
+        else:
+            print(".\t%s\t%s" % (
+                i["id"],
+                target
+            ))
 
 @cli.command("file")
 @click.argument("sample")
