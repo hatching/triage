@@ -3,7 +3,7 @@
 
 import json
 
-def prompt_select_options(options, key):
+def prompt_select_options(options, key, f=None):
     print("\nMake your selection by entering the numbers as listed below "
     "separated by spaces and finish with enter.\n")
 
@@ -18,6 +18,9 @@ def prompt_select_options(options, key):
     selection = []
     choices = input("> ")
     for choice in choices.split(" "):
+        if choice.strip() == "":
+            continue
+
         try:
             choice = int(choice)
         except ValueError:
@@ -32,6 +35,10 @@ def prompt_select_options(options, key):
             continue
 
         selection.append(choice)
+
+    if f:
+        if not f(selection):
+            return prompt_select_options(options, key,  f)
 
     if len(selection) > 0:
         print("You selected:")

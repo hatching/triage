@@ -57,19 +57,32 @@ def prompt_select_files(static):
 
     selection = prompt_select_options(static["files"], key="filename")
     if len(selection) == 0:
-        print("Using default selection")
-        return [x["relpath"] for x in static["files"] if x["selected"]], True
-    return [static["files"][i].get("relpath") for i in selection], False
+        return [{
+                "name": x["filename"],
+                "path": x.get("relpath")
+            } for x in static["files"] if x["selected"]], True
+    return [{
+            "name": static["files"][i]["filename"],
+            "path": static["files"][i].get("relpath")
+        } for i in selection], False
 
 def prompt_select_profiles_for_files(profiles, pick):
+    f = None
+    if len(pick) > 1:
+        f = lambda x : len(x) > 0
+
     rt = []
     for i in pick:
-        print("Please select the profiles to use for ", i)
-        selection = prompt_select_options(profiles, key="name")
+        print("Please select the profiles to use for", i["name"])
+        selection = prompt_select_options(
+            profiles,
+            key="name",
+            f=f
+        )
         for choice in selection:
             rt.append({
                 "profile": profiles[choice]["id"],
-                "pick": i
+                "pick": i["path"]
             })
     return rt
 
@@ -86,23 +99,36 @@ def prompt_select_profile(c, sample):
             print("the sample does not need a profile to be selected")
             return
     static = c.static_report(sample)
-    if len(static["files"]) >= 1:
-        pick, defaultSelection = prompt_select_files(static)
+    pick = []
+    default_selection = False
+    if static["sample"]["kind"] == "url":
+        pick.append({
+            "name": static["sample"]["target"],
+            "path": static["sample"]["target"]
+        })
+    elif len(static["files"]) == 1:
+        pick.append({
+            "name": static["files"][0]["filename"],
+            "path": static["files"][0].get("relpath"),
+        })
+    else:
+        pick, default_selection = prompt_select_files(static)
 
     # Fetch profiles before determining whether we should use automatic
     #  profiles. If no profiles are available, fall back to automatic profiles.
     profiles = [x for x in c.profiles()]
-    if defaultSelection or len(profiles) == 0:
-        if len(profiles) == 0:
-            print("No profiles are available, using automatic profiles "
-                "instead.")
-        c.set_sample_profile_automatically(sample, pick=pick)
-        return
+    profile_selections = []
 
-    profile_selections = prompt_select_profiles_for_files(profiles, pick)
-    if len(profile_selections) == 0:
-        print("Skipping profile selection.. choosing automatically")
-        c.set_sample_profile_automatically(sample, pick=pick)
+    if not default_selection:
+        profile_selections = prompt_select_profiles_for_files(profiles, pick)
+        default_selection = (len(profile_selections) == 0)
+
+    if default_selection:
+        print("Using default selection.")
+        c.set_sample_profile_automatically(
+            sample,
+            pick=[i["path"] for i in pick]
+        )
         return
 
     c.set_sample_profile(sample, profile_selections)
