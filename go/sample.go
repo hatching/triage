@@ -162,18 +162,18 @@ type SampleResp struct {
 }
 
 func (c *Client) samples(ctx context.Context, subset string, max int) <-chan Sample {
-	if max > maxLimit {
-		max = maxLimit
-	}
-
 	samples := make(chan Sample)
 	go func() {
 		var response SampleResp
 		var counter int
 		for {
-			url := fmt.Sprintf("/v0/samples?subset=%s&limit=%v", subset, max)
+			limit := max
+			if limit > maxLimit {
+				limit = maxLimit
+			}
+			url := fmt.Sprintf("/v0/samples?subset=%v&limit=%v", subset, limit)
 			if response.Next != "" {
-				url = fmt.Sprintf("%s&offset=%s", url, response.Next)
+				url = fmt.Sprintf("%v&offset=%v", url, response.Next)
 			}
 			if err := c.jsonRequestJSON(ctx, http.MethodGet, url, nil, &response); err != nil {
 				panic(err)
