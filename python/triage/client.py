@@ -281,6 +281,48 @@ class Client:
             'GET', '/v0/samples/{0}/overview.json'.format(sample_id)
         )
 
+    def kernel_report(self, sample_id, task_id):
+        """
+        Return kernel output.
+
+        Parameters:
+            sample_id (str): The id of the sample
+            task_id (str): The id of the task
+
+        Returns:
+            List of json entries
+            [
+                {"kind": ".."},
+                {"kind": ".."},
+                {"kind": ".."},
+            ]
+        """
+        overview = self.overview_report(sample_id)
+        task = overview["tasks"].get("%s-%s" % (sample_id, task_id))
+        if not task:
+            raise ValueError("Task does not exist")
+
+        if "windows" in task["platform"]:
+            r =  self._new_request(
+                'GET', '/v0/samples/{0}/{1}/logs/onemon.json'.format(
+                    sample_id, task_id)
+            )
+            f = urlopen(r)
+        elif "linux" in task["platform"]:
+            r =  self._new_request(
+                'GET', '/v0/samples/{0}/{1}/logs/stahp.json'.format(
+                    sample_id, task_id)
+            )
+            f = urlopen(r)
+        else:
+            raise ValueError("Platform not supported")
+
+        with f:
+            for entry in f.read().split(b"\n"):
+                if entry.strip() == b"":
+                    break
+                yield json.loads(entry)
+
     def task_report(self, sample_id, task_id):
         """
         Return a task report.

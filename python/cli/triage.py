@@ -4,6 +4,7 @@
 import sys
 import os
 import time
+import json
 
 import click
 import appdirs
@@ -265,6 +266,18 @@ def archive(sample, format, output):
 def delete(sample):
     c = client_from_env()
     c.delete_sample(sample)
+
+@cli.command("onemon.json")
+@click.argument("sample")
+@click.argument("tasks", nargs=-1)
+def onemon(sample, tasks):
+    c = client_from_env()
+    for k, v in c.overview_report(sample)["tasks"].items():
+        if v["kind"] == "behavioral":
+            if tasks and v["name"] not in tasks:
+                continue
+            for line in c.kernel_report(sample, v["name"]):
+                print(json.dumps(line, separators=(',', ':')))
 
 @cli.command("report")
 @click.argument("sample")
