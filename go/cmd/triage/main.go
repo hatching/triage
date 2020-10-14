@@ -6,6 +6,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -56,6 +57,10 @@ func usage() {
   report [sample] [flags]
 
     Query reports for a (finished) analysis.
+
+  onemon.json [sample] [flags]
+
+	Get the onemon report of the tasks
 
   create-profile [flags]
 
@@ -182,6 +187,16 @@ func main() {
 
 		parseFlags(flags, 1)
 		cli.sampleReport(action, flag.Arg(1), *static, *taskID)
+	case "onemon.json":
+		flags.Usage = func() {
+			fmt.Printf("%s [sample] [flags]\n", action)
+			flags.PrintDefaults()
+		}
+		var tasks arrayFlags
+		flags.Var(&tasks, "t", "The tasks to use (empty = all)")
+
+		parseFlags(flags, 1)
+		cli.sampleOnemon(action, flag.Arg(1), tasks)
 	case "create-profile":
 		flags.Usage = func() {
 			fmt.Printf("%s [flags]\n", action)
@@ -617,6 +632,37 @@ func (c *Cli) sampleReport(arg0, sampleID string, static bool, taskID string) {
 				fmt.Printf("    platform: %s\n", task.Platform)
 			}
 			fmt.Printf("    tags: %s\n", task.Tags)
+		}
+	}
+}
+
+func (c *Cli) sampleOnemon(arg0, sampleID string, tasks []string) {
+	report, err := c.client.SampleOverviewReport(context.Background(), sampleID)
+	if err != nil {
+		c.fatal(err)
+	}
+	for _, task := range report.Tasks {
+		if task.Kind != "behavioral" || task.Name == "" {
+			continue
+		}
+		var msg []json.RawMessage
+		if len(tasks) == 0 {
+			if msg, err = c.client.SampleTaskKernelReport(context.Background(), sampleID, task.Name); err != nil {
+				c.fatal(err)
+			}
+		}
+		for _, userTask := range tasks {
+			if userTask == task.Name {
+				if msg, err = c.client.SampleTaskKernelReport(context.Background(), sampleID, task.Name); err != nil {
+					c.fatal(err)
+				}
+			}
+		}
+		if msg == nil {
+			continue
+		}
+		for _, entry := range msg {
+			fmt.Printf("%s\n", entry)
 		}
 	}
 }

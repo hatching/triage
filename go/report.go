@@ -5,8 +5,11 @@ package triage
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/hatching/triage/types"
 )
@@ -27,6 +30,41 @@ func (c *Client) SampleStaticReport(ctx context.Context, sampleID string) (*type
 		return nil, err
 	}
 	return &resp, nil
+}
+
+func (c *Client) SampleTaskKernelReport(ctx context.Context, sampleID, taskID string) ([]json.RawMessage, error) {
+	var resp []json.RawMessage
+	overview, err := c.SampleOverviewReport(ctx, sampleID)
+	if err != nil {
+		return resp, err
+	}
+	task, ok := overview.Tasks[fmt.Sprintf("%s-%s", sampleID, taskID)]
+	if !ok {
+		return resp, fmt.Errorf("Task does not exist")
+	}
+	var file io.ReadCloser
+	if strings.Contains(task.Platform, "windows") {
+		if file, err = c.requestRawFile(ctx, "GET", fmt.Sprintf("/v0/samples/%s/%s/logs/onemon.json", sampleID, taskID)); err != nil {
+			return resp, err
+		}
+	} else if strings.Contains(task.Platform, "linux") {
+		if file, err = c.requestRawFile(ctx, "GET", fmt.Sprintf("/v0/samples/%s/%s/logs/stahp.json", sampleID, taskID)); err != nil {
+			return resp, err
+		}
+	} else {
+		return resp, fmt.Errorf("Platform not supported")
+	}
+	d := json.NewDecoder(file)
+	for {
+		var event json.RawMessage
+		if err := d.Decode(&event); err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+		resp = append(resp, event)
+	}
+	return resp, nil
 }
 
 func (c *Client) SampleTaskReport(ctx context.Context, sampleID, taskID string) (*types.TriageReport, error) {
