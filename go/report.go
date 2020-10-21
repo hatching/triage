@@ -38,8 +38,14 @@ func (c *Client) SampleTaskKernelReport(ctx context.Context, sampleID, taskID st
 	if err != nil {
 		return resp, err
 	}
-	task, ok := overview.Tasks[fmt.Sprintf("%s-%s", sampleID, taskID)]
-	if !ok {
+	var task *types.TaskSummary
+	for _, t := range overview.Tasks {
+		if t.Name == taskID {
+			task = &t
+			break
+		}
+	}
+	if task == nil {
 		return resp, fmt.Errorf("Task does not exist")
 	}
 	var file io.ReadCloser

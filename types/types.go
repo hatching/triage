@@ -3,6 +3,8 @@
 
 package types
 
+import "time"
+
 // static.json
 type (
 	ReportSample struct {
@@ -193,6 +195,7 @@ type (
 		Protocols []string `json:"protocols,omitempty"`
 		Domain    string   `json:"domain,omitempty"`
 		JA3       string   `json:"tls_ja3,omitempty"`
+		JA3S      string   `json:"tls_ja3s,omitempty"`
 		SNI       string   `json:"tls_sni,omitempty"`
 		Country   string   `json:"country,omitempty"`
 		AS        string   `json:"as_num,omitempty"`
@@ -242,6 +245,7 @@ type (
 		Family   string       `json:"family,omitempty"`
 		Language string       `json:"language"`
 		Source   string       `json:"source"`
+		Deobf    string       `json:"deobfuscated"`
 		URLs     []DropperURL `json:"urls"`
 	}
 	Credentials struct {
@@ -291,15 +295,21 @@ type (
 // overview.json
 type (
 	OverviewReport struct {
-		Version   string                 `json:"version"`
-		Sample    TargetDesc             `json:"sample"`
-		Tasks     map[string]TaskSummary `json:"tasks,omitempty"`
-		Analysis  OverviewAnalysis       `json:"analysis"`
-		Targets   []OverviewTarget       `json:"targets"`
-		Errors    []ReportedFailure      `json:"errors,omitempty"`
-		Extracted []OverviewExtracted    `json:"extracted,omitempty"`
+		Version   string              `json:"version"`
+		Sample    OverviewSample      `json:"sample"`
+		Tasks     []TaskSummary       `json:"tasks,omitempty"`
+		Analysis  OverviewAnalysis    `json:"analysis"`
+		Targets   []OverviewTarget    `json:"targets"`
+		Errors    []ReportedFailure   `json:"errors,omitempty"`
+		Extracted []OverviewExtracted `json:"extracted,omitempty"`
+	}
+	OverviewSample struct {
+		TargetDesc
+		Created   time.Time `json:"created"`
+		Completed time.Time `json:"completed"`
 	}
 	TaskSummary struct {
+		Sample   string   `json:"sample"`
 		Kind     string   `json:"kind,omitempty"`
 		Name     string   `json:"name,omitempty"`
 		Status   string   `json:"status,omitempty"`
