@@ -298,8 +298,11 @@ class Client:
             ]
         """
         overview = self.overview_report(sample_id)
-        task = overview["tasks"].get("%s-%s" % (sample_id, task_id))
-        if not task:
+        for t in overview["tasks"]:
+            if t["name"] == task_id:
+                task = t
+                break
+        else:
             raise ValueError("Task does not exist")
 
         if "windows" in task["platform"]:
