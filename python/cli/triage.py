@@ -10,6 +10,7 @@ import click
 import appdirs
 
 from triage import Client
+from triage.client import ServerError
 from cli.tui import prompt_select_options
 
 def token_file():
@@ -194,7 +195,10 @@ def select_profile(sample):
 def paginator_format(c, i):
     target = i["url"] if i.get("url") else i.get("filename", "-")
     if i["status"] == "reported":
-        overview = c.overview_report(i["id"])
+        try:
+            overview = c.overview_report(i["id"])
+        except ServerError:
+            return
         if len(overview["analysis"].get("family", [])) >= 1:
             print("%s\t%s, %s\t%s" % (
                 overview["analysis"]["score"],

@@ -501,7 +501,7 @@ func (c *Cli) paginatorFormat(samples <-chan triage.Sample) {
 		if sample.Status == triage.SampleStatusReported {
 			overview, err := c.client.SampleOverviewReport(context.Background(), sample.ID)
 			if err != nil {
-				c.fatal(err)
+				continue
 			}
 
 			if len(overview.Analysis.Family) >= 1 {
