@@ -43,6 +43,42 @@ func TestSubmitUrl(t *testing.T) {
 	})
 }
 
+func TestSearchForUser(t *testing.T) {
+	ctx := context.Background()
+	m := mock_triage.ClientMock{}
+	m.Response = struct {
+		Next string   `json:"next"`
+		Data []Sample `json:"data"`
+	}{
+		Next: "2006-01-02T15:04:05Z07:00",
+		Data: []Sample{
+			{
+				ID: "test1",
+			},
+			{
+				ID: "test2",
+			},
+		},
+	}
+	m.StatusCode = 200
+	client := &Client{
+		httpClient: &m,
+	}
+	samples := client.Search(ctx, "NOT family:emotet", 2000)
+	<-samples
+	if m.RequestMethod != "GET" {
+		t.Fatal("Unexpected method")
+	}
+	if m.RequestUrl != "/v0/search?query=NOT+family%3Aemotet&limit=200" {
+		t.Fatalf("Expected other request url %v", m.RequestUrl)
+	}
+	<-samples
+	<-samples
+	if m.RequestUrl != "/v0/search?query=NOT+family%3Aemotet&limit=200&offset=2006-01-02T15:04:05Z07:00" {
+		t.Fatalf("Expected other request url")
+	}
+}
+
 func TestSamplesForUser(t *testing.T) {
 	ctx := context.Background()
 	m := mock_triage.ClientMock{}

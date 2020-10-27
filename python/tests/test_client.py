@@ -81,6 +81,15 @@ class TestReport:
             assert i["name"] == "test"
 
     @patch('triage.client.urlopen')
+    def test_search(self, mock_urlopen):
+        c = helper(
+            "GET", "/v0/search?query=NOT+family%3Aemotet&limit=200", None,
+            mock_urlopen, '{"data": [{"name": "test"}]}'
+        )
+        for i in c.search("NOT family:emotet"):
+            assert i["name"] == "test"
+
+    @patch('triage.client.urlopen')
     def test_sample(self, mock_urlopen):
         c = helper(
             "GET", "/v0/samples/sample1", None,
