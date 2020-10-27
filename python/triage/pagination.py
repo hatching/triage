@@ -21,6 +21,9 @@ class Paginator:
         else:
             path = self._path + '?'
 
+        if self._max < self._limit:
+            self._limit = self._max
+
         path = path + 'limit={0}'.format(self._limit)
         if self._offset is not None:
             path = path + 'offset={0}'.format(self._offset)

@@ -65,7 +65,7 @@ class TestReport:
     @patch('triage.client.urlopen')
     def test_owned_samples(self, mock_urlopen):
         c = helper(
-            "GET", "/v0/samples?subset=owned&limit=200", None,
+            "GET", "/v0/samples?subset=owned&limit=20", None,
             mock_urlopen, '{"data": [{"name": "test"}]}'
         )
         for i in c.owned_samples():
@@ -74,7 +74,7 @@ class TestReport:
     @patch('triage.client.urlopen')
     def test_public_samples(self, mock_urlopen):
         c = helper(
-            "GET", "/v0/samples?subset=public&limit=200", None,
+            "GET", "/v0/samples?subset=public&limit=20", None,
             mock_urlopen, '{"data": [{"name": "test"}]}'
         )
         for i in c.public_samples():
@@ -83,10 +83,17 @@ class TestReport:
     @patch('triage.client.urlopen')
     def test_search(self, mock_urlopen):
         c = helper(
-            "GET", "/v0/search?query=NOT+family%3Aemotet&limit=200", None,
+            "GET", "/v0/search?query=NOT+family%3Aemotet&limit=20", None,
             mock_urlopen, '{"data": [{"name": "test"}]}'
         )
         for i in c.search("NOT family:emotet"):
+            assert i["name"] == "test"
+
+        c = helper(
+            "GET", "/v0/search?query=NOT+family%3Aemotet&limit=200", None,
+            mock_urlopen, '{"data": [{"name": "test"}]}'
+        )
+        for i in c.search("NOT family:emotet", 1000):
             assert i["name"] == "test"
 
     @patch('triage.client.urlopen')
@@ -158,7 +165,7 @@ class TestProfile:
     @patch('triage.client.urlopen')
     def test_list_profiles(self, mock_urlopen):
         c = helper(
-            "GET", "/v0/profiles?limit=200", None,
+            "GET", "/v0/profiles?limit=20", None,
             mock_urlopen, '{"data": [{"name": "test"}]}'
         )
         for x in c.profiles():
