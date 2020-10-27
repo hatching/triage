@@ -174,7 +174,7 @@ func (c *Client) samples(ctx context.Context, subset *string, search *string, ma
 			}
 			var u string
 			if subset != nil {
-				u = fmt.Sprintf("/v0/samples?subset=%v&limit=%v", subset, limit)
+				u = fmt.Sprintf("/v0/samples?subset=%v&limit=%v", *subset, limit)
 			} else {
 				query := url.QueryEscape(*search)
 				u = fmt.Sprintf("/v0/search?query=%v&limit=%v", query, limit)
