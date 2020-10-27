@@ -10,6 +10,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -161,7 +162,7 @@ type SampleResp struct {
 	Next string   `json:"next"`
 }
 
-func (c *Client) samples(ctx context.Context, subset string, max int) <-chan Sample {
+func (c *Client) samples(ctx context.Context, subset *string, search *string, max int) <-chan Sample {
 	samples := make(chan Sample)
 	go func() {
 		var response SampleResp
@@ -171,11 +172,17 @@ func (c *Client) samples(ctx context.Context, subset string, max int) <-chan Sam
 			if limit > maxLimit {
 				limit = maxLimit
 			}
-			url := fmt.Sprintf("/v0/samples?subset=%v&limit=%v", subset, limit)
-			if response.Next != "" {
-				url = fmt.Sprintf("%v&offset=%v", url, response.Next)
+			var u string
+			if subset != nil {
+				u = fmt.Sprintf("/v0/samples?subset=%v&limit=%v", subset, limit)
+			} else {
+				query := url.QueryEscape(*search)
+				u = fmt.Sprintf("/v0/search?query=%v&limit=%v", query, limit)
 			}
-			if err := c.jsonRequestJSON(ctx, http.MethodGet, url, nil, &response); err != nil {
+			if response.Next != "" {
+				u = fmt.Sprintf("%v&offset=%v", u, response.Next)
+			}
+			if err := c.jsonRequestJSON(ctx, http.MethodGet, u, nil, &response); err != nil {
 				panic(err)
 			}
 			if len(response.Data) == 0 {
@@ -196,11 +203,17 @@ func (c *Client) samples(ctx context.Context, subset string, max int) <-chan Sam
 }
 
 func (c *Client) PublicSamples(ctx context.Context, max int) <-chan Sample {
-	return c.samples(ctx, "public", max)
+	subset := "public"
+	return c.samples(ctx, &subset, nil, max)
 }
 
 func (c *Client) SamplesForUser(ctx context.Context, max int) <-chan Sample {
-	return c.samples(ctx, "owned", max)
+	subset := "owned"
+	return c.samples(ctx, &subset, nil, max)
+}
+
+func (c *Client) Search(ctx context.Context, query string, max int) <-chan Sample {
+	return c.samples(ctx, nil, &query, max)
 }
 
 func (c *Client) SampleByID(ctx context.Context, sampleID string) (*Sample, error) {

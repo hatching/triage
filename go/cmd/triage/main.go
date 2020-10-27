@@ -42,6 +42,10 @@ func usage() {
 
     Show the latest samples that have been submitted.
 
+  search [query] [flags]
+
+    Search for samples.
+
   file [sample] [task] [file] [flags]
 
     Download task related files.
@@ -150,6 +154,15 @@ func main() {
 
 		parseFlags(flags, 0)
 		cli.listSamples(action, *num, *public)
+	case "search":
+		flags.Usage = func() {
+			fmt.Printf("%s [query] [flags]\n", action)
+			flags.PrintDefaults()
+		}
+		num := flags.Int("n", 20, "The maximum number of samples to return")
+
+		parseFlags(flags, 1)
+		cli.searchSamples(action, flag.Arg(1), *num)
 	case "file":
 		flags.Usage = func() {
 			fmt.Printf("%s [sample] [task] [file] [flags]\n", action)
@@ -470,13 +483,7 @@ func (c *Cli) promptSelectProfilesForFiles(profiles []triage.Profile, pick []Pic
 	return profileSelections
 }
 
-func (c *Cli) listSamples(arg0 string, num int, public bool) {
-	var samples <-chan triage.Sample
-	if public {
-		samples = c.client.PublicSamples(context.Background(), num)
-	} else {
-		samples = c.client.SamplesForUser(context.Background(), num)
-	}
+func (c *Cli) paginatorFormat(samples <-chan triage.Sample) {
 	for sample := range samples {
 		var tasks []string
 		for _, t := range sample.Tasks {
@@ -507,6 +514,21 @@ func (c *Cli) listSamples(arg0 string, num int, public bool) {
 		}
 
 	}
+}
+
+func (c *Cli) listSamples(arg0 string, num int, public bool) {
+	var samples <-chan triage.Sample
+	if public {
+		samples = c.client.PublicSamples(context.Background(), num)
+	} else {
+		samples = c.client.SamplesForUser(context.Background(), num)
+	}
+	c.paginatorFormat(samples)
+}
+
+func (c *Cli) searchSamples(action, query string, num int) {
+	samples := c.client.Search(context.Background(), query, num)
+	c.paginatorFormat(samples)
 }
 
 func (c *Cli) sampleFile(arg0, sampleID, taskID, filename string, outFilename string) {
