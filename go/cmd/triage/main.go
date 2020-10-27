@@ -156,6 +156,7 @@ func main() {
 		cli.listSamples(action, *num, *public)
 	case "search":
 		flags.Usage = func() {
+			fmt.Println("Use https://tria.ge/docs/cloud-api/samples/#get-search for query formats")
 			fmt.Printf("%s [query] [flags]\n", action)
 			flags.PrintDefaults()
 		}

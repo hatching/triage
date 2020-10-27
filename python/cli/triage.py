@@ -282,7 +282,7 @@ def onemon(sample, tasks):
             for line in c.kernel_report(sample, v["name"]):
                 print(json.dumps(line, separators=(',', ':')))
 
-@cli.command("search")
+@cli.command("search", help="Use https://tria.ge/docs/cloud-api/samples/#get-search for query formats")
 @click.argument("query")
 @click.option("-n", default=20, help="The maximum number of samples to return")
 def search(query, n):
