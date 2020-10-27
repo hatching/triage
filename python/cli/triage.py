@@ -191,33 +191,36 @@ def select_profile(sample):
     c = client_from_env()
     prompt_select_profile(c, sample)
 
+def paginator_format(c, i):
+    target = i["url"] if i.get("url") else i.get("filename", "-")
+    if i["status"] == "reported":
+        overview = c.overview_report(i["id"])
+        if len(overview["analysis"].get("family", [])) >= 1:
+            print("%s\t%s, %s\t%s" % (
+                overview["analysis"]["score"],
+                i["id"],
+                overview["analysis"]["family"],
+                target
+            ))
+        else:
+            print("%s\t%s\t%s" % (
+                overview["analysis"]["score"],
+                i["id"],
+                target
+            ))
+    else:
+        print(".\t%s\t%s" % (
+            i["id"],
+            target
+        ))
+
 @cli.command("list")
 @click.option("-n", default=20, help="The maximum number of samples to return")
 @click.option("-p", "--public", is_flag=True, help="List public samples")
 def list_samples(public, n):
     c = client_from_env()
     for i in c.public_samples(max=n) if public else c.owned_samples(max=n):
-        target = i["url"] if i.get("url") else i.get("filename", "-")
-        if i["status"] == "reported":
-            overview = c.overview_report(i["id"])
-            if len(overview["analysis"].get("family", [])) >= 1:
-                print("%s\t%s, %s\t%s" % (
-                    overview["analysis"]["score"],
-                    i["id"],
-                    overview["analysis"]["family"],
-                    target
-                ))
-            else:
-                print("%s\t%s\t%s" % (
-                    overview["analysis"]["score"],
-                    i["id"],
-                    target
-                ))
-        else:
-            print(".\t%s\t%s" % (
-                i["id"],
-                target
-            ))
+        paginator_format(c, i)
 
 @cli.command("file")
 @click.argument("sample")
@@ -278,6 +281,14 @@ def onemon(sample, tasks):
                 continue
             for line in c.kernel_report(sample, v["name"]):
                 print(json.dumps(line, separators=(',', ':')))
+
+@cli.command("search")
+@click.argument("query")
+@click.option("-n", default=20, help="The maximum number of samples to return")
+def search(query, n):
+    c = client_from_env()
+    for i in c.search(query, n):
+        paginator_format(c, i)
 
 @cli.command("report")
 @click.argument("sample")

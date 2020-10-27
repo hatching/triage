@@ -72,6 +72,15 @@ https://tria.ge/docs/cloud-api/samples/#get-samples
 ##### Return Paginator
 https://tria.ge/docs/cloud-api/samples/#get-samples
 
+### search_samples
+
+`query`: String
+`max`: Int
+* default: 20
+
+##### Return Paginator
+https://tria.ge/docs/cloud-api/samples/#get-samples
+
 ### sample_by_id
 
 `sample_id`: String

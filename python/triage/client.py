@@ -5,6 +5,7 @@ from io import StringIO, BytesIO
 from triage.pagination import Paginator
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+from urllib import parse
 import binascii
 import json
 import os
@@ -234,6 +235,21 @@ class Client:
                 {}, empty dict
         """
         return self._req_json('DELETE', '/v0/samples/{0}'.format(sample_id))
+
+    def search(self, query, max=20):
+        """
+        Returns a Paginator object with search samples.
+
+        Parameters:
+            query (str): The search query
+            max (int): The maximum amount of samples to return
+
+        Returns:
+            Paginator (object):
+                Loop over this object to get the samples
+        """
+        params = parse.urlencode({"query": query})
+        return Paginator(self, '/v0/search?{0}'.format(params), max)
 
     def static_report(self, sample_id):
         """
