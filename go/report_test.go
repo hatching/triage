@@ -40,7 +40,7 @@ func TestOverviewReport(t *testing.T) {
 	if _, err := client.SampleOverviewReport(ctx, "test-123"); err != nil {
 		t.Fatal(err)
 	}
-	if m.RequestUrl != "/v0/samples/test-123/overview.json" {
+	if m.RequestUrl != "/v1/samples/test-123/overview.json" {
 		t.Fatalf("Expected other request url %v", m.RequestUrl)
 	}
 	if m.RequestMethod != "GET" {

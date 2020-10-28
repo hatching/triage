@@ -123,7 +123,7 @@ class TestReport:
     @patch('triage.client.urlopen')
     def test_overview(self, mock_urlopen):
         c = helper(
-            "GET", "/v0/samples/sample1/overview.json", None,
+            "GET", "/v1/samples/sample1/overview.json", None,
             mock_urlopen, '{}'
         )
         c.overview_report("sample1")

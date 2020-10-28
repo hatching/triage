@@ -294,7 +294,7 @@ class Client:
                 }
         """
         return self._req_json(
-            'GET', '/v0/samples/{0}/overview.json'.format(sample_id)
+            'GET', '/v1/samples/{0}/overview.json'.format(sample_id)
         )
 
     def kernel_report(self, sample_id, task_id):

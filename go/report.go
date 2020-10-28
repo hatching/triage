@@ -16,7 +16,7 @@ import (
 
 func (c *Client) SampleOverviewReport(ctx context.Context, sampleID string) (*types.OverviewReport, error) {
 	var resp types.OverviewReport
-	path := "/v0/samples/" + sampleID + "/overview.json"
+	path := "/v1/samples/" + sampleID + "/overview.json"
 	if err := c.jsonRequestJSON(ctx, http.MethodGet, path, nil, &resp); err != nil {
 		return nil, err
 	}
