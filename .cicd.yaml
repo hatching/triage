@@ -2,12 +2,19 @@
 # All rights reserved.
 
 stages:
+  - build
   - test
 
 jobs:
+  build:
+    stage: build
+    image: hatching.io/cicd-build:latest
+    script:
+      - make -C go
+
   test:
     stage: test
-    image: hatching.io/cicd-test:latest
+    image: hatching.io/cicd-build:latest
     script:
-      - cd go && make
       - make test
+      - make -C python test
