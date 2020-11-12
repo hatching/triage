@@ -159,7 +159,7 @@ func (c *Client) SetSampleProfileAutomatically(ctx context.Context, sampleID str
 
 type SampleResp struct {
 	Data []Sample `json:"data"`
-	Next string   `json:"next"`
+	Next *string  `json:"next"`
 }
 
 func (c *Client) samples(ctx context.Context, subset *string, search *string, max int) <-chan Sample {
@@ -179,8 +179,8 @@ func (c *Client) samples(ctx context.Context, subset *string, search *string, ma
 				query := url.QueryEscape(*search)
 				u = fmt.Sprintf("/v0/search?query=%v&limit=%v", query, limit)
 			}
-			if response.Next != "" {
-				u = fmt.Sprintf("%v&offset=%v", u, response.Next)
+			if response.Next != nil {
+				u = fmt.Sprintf("%v&offset=%v", u, *response.Next)
 			}
 			if err := c.jsonRequestJSON(ctx, http.MethodGet, u, nil, &response); err != nil {
 				panic(err)
@@ -195,6 +195,9 @@ func (c *Client) samples(ctx context.Context, subset *string, search *string, ma
 					close(samples)
 					return
 				}
+			}
+			if response.Next == nil {
+				break
 			}
 		}
 		close(samples)

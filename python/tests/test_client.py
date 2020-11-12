@@ -66,7 +66,7 @@ class TestReport:
     def test_owned_samples(self, mock_urlopen):
         c = helper(
             "GET", "/v0/samples?subset=owned&limit=20", None,
-            mock_urlopen, '{"data": [{"name": "test"}]}'
+            mock_urlopen, '{"data": [{"name": "test"}], "next": null}'
         )
         for i in c.owned_samples():
             assert i["name"] == "test"
@@ -75,7 +75,7 @@ class TestReport:
     def test_public_samples(self, mock_urlopen):
         c = helper(
             "GET", "/v0/samples?subset=public&limit=20", None,
-            mock_urlopen, '{"data": [{"name": "test"}]}'
+            mock_urlopen, '{"data": [{"name": "test"}], "next": null}'
         )
         for i in c.public_samples():
             assert i["name"] == "test"
@@ -84,14 +84,14 @@ class TestReport:
     def test_search(self, mock_urlopen):
         c = helper(
             "GET", "/v0/search?query=NOT+family%3Aemotet&limit=20", None,
-            mock_urlopen, '{"data": [{"name": "test"}]}'
+            mock_urlopen, '{"data": [{"name": "test"}], "next": null}'
         )
         for i in c.search("NOT family:emotet"):
             assert i["name"] == "test"
 
         c = helper(
             "GET", "/v0/search?query=NOT+family%3Aemotet&limit=200", None,
-            mock_urlopen, '{"data": [{"name": "test"}]}'
+            mock_urlopen, '{"data": [{"name": "test"}], "next": null}'
         )
         for i in c.search("NOT family:emotet", 1000):
             assert i["name"] == "test"
@@ -166,7 +166,7 @@ class TestProfile:
     def test_list_profiles(self, mock_urlopen):
         c = helper(
             "GET", "/v0/profiles?limit=20", None,
-            mock_urlopen, '{"data": [{"name": "test"}]}'
+            mock_urlopen, '{"data": [{"name": "test"}], "next": null}'
         )
         for x in c.profiles():
             assert x["name"] == "test"

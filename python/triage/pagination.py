@@ -26,11 +26,12 @@ class Paginator:
 
         path = path + 'limit={0}'.format(self._limit)
         if self._offset is not None:
-            path = path + 'offset={0}'.format(self._offset)
+            path = path + '&offset={0}'.format(self._offset)
 
         resp = self._client._req_json('GET', path)
         self._current_page = resp['data']
-        if 'next' in resp:
+
+        if resp.get('next'):
             self._offset = resp['next']
         else:
             self._offset = None
