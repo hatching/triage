@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Triage = "https://api.tria.ge/v0"
+	Triage = "https://api.tria.ge"
 	Token  = "<YOUR-APIKEY-HERE>"
 )
 
