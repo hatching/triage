@@ -23,11 +23,6 @@ type (
 		Score    int      `json:"score,omitempty"`
 		Tags     []string `json:"tags,omitempty"`
 	}
-	Report struct {
-		Files       []*FileReport `json:"files"`
-		UnpackCount int           `json:"unpack_count"`
-		ErrorCount  int           `json:"error_count"`
-	}
 	StaticReport struct {
 		Version string `json:"version"`
 
@@ -35,9 +30,11 @@ type (
 		Task     ReportTask     `json:"task"`
 		Analysis ReportAnalysis `json:"analysis"`
 
-		Signatures []*Signature `json:"signatures,omitempty"`
-		Report
-		CompatKind string `json:"kind,omitempty"`
+		Signatures  []*Signature  `json:"signatures,omitempty"`
+		Files       []*FileReport `json:"files"`
+		UnpackCount int           `json:"unpack_count"`
+		ErrorCount  int           `json:"error_count"`
+		CompatKind  string        `json:"kind,omitempty"`
 
 		Errors    []ReportedFailure `json:"errors,omitempty"`
 		Extracted []*Extract        `json:"extracted,omitempty"`
