@@ -333,7 +333,7 @@ def report(sample, static, task):
         print("  family:", r["analysis"].get("family"))
         print("  tags:", r["analysis"]["tags"])
         print()
-        for k, task in r.get("tasks", {}).items():
+        for task in r.get("tasks", []):
             print(" ", task["name"])
             print("    score:", task.get("score", "N/A"))
             if task["kind"] != "static":
