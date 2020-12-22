@@ -7,22 +7,6 @@ import "time"
 
 // static.json
 type (
-	ReportSample struct {
-		ID        string `json:"sample"`
-		Kind      string `json:"kind,omitempty"`
-		Size      uint64 `json:"size,omitempty"`
-		Target    string `json:"target,omitempty"`
-		Submitted string `json:"submitted,omitempty"`
-	}
-	ReportTask struct {
-		ID     string `json:"task"`
-		Target string `json:"target,omitempty"`
-	}
-	ReportAnalysis struct {
-		Reported string   `json:"reported,omitempty"`
-		Score    int      `json:"score,omitempty"`
-		Tags     []string `json:"tags,omitempty"`
-	}
 	StaticReport struct {
 		Version string `json:"version"`
 
@@ -38,6 +22,22 @@ type (
 
 		Errors    []ReportedFailure `json:"errors,omitempty"`
 		Extracted []*Extract        `json:"extracted,omitempty"`
+	}
+	ReportSample struct {
+		ID        string `json:"sample"`
+		Kind      string `json:"kind,omitempty"`
+		Size      uint64 `json:"size,omitempty"`
+		Target    string `json:"target,omitempty"`
+		Submitted string `json:"submitted,omitempty"`
+	}
+	ReportTask struct {
+		ID     string `json:"task"`
+		Target string `json:"target,omitempty"`
+	}
+	ReportAnalysis struct {
+		Reported string   `json:"reported,omitempty"`
+		Score    int      `json:"score,omitempty"`
+		Tags     []string `json:"tags,omitempty"`
 	}
 	FileReport struct {
 		Name    string `json:"filename"`
