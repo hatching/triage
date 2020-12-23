@@ -4,6 +4,10 @@ Hatching Triage
 This repository features a command-line client and API for interacting with
 [Hatching Triage](https://tria.ge/), an automated malware analysis sandbox.
 
+Our official command-line and API client is implemented in both Golang as
+well as Python. For a Java library, please see
+[TriageApi by Libra](https://github.com/ThisIsLibra/TriageApi).
+
 ## Getting Started
 
 ### Installing the Go client
