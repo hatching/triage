@@ -309,7 +309,7 @@ def report(sample, static, task):
                 "(selected)" if f["selected"] else "")
             )
             print("  md5:", f["md5"])
-            print("  tags:", f["tags"])
+            print("  tags:", f.get("tags", []))
             print("  kind:", f["kind"])
     elif task:
         print("~%s Report~" % task)
@@ -321,7 +321,7 @@ def report(sample, static, task):
         print(r["task"]["target"])
         print("  md5:", r["task"]["md5"])
         print("  score:", r["analysis"]["score"])
-        print("  tags:", r["analysis"]["tags"])
+        print("  tags:", r["analysis"].get("tags", []))
     else:
         print("~Overview~")
         r = c.overview_report(sample)
@@ -331,7 +331,7 @@ def report(sample, static, task):
         print("  md5:", r["sample"]["md5"])
         print("  score:", r["analysis"]["score"])
         print("  family:", r["analysis"].get("family"))
-        print("  tags:", r["analysis"]["tags"])
+        print("  tags:", r["analysis"].get("tags", []))
         print()
         for task in r.get("tasks", []):
             print(" ", task["name"])
@@ -367,7 +367,7 @@ def list_profiles():
         print(i["name"])
         print("  timeout:", i["timeout"])
         print("  network:", i["network"])
-        print("  tags:", i["tags"])
+        print("  tags:", i.get("tags", []))
         print("  id:", i["id"])
 
 if __name__ == "__main__":
