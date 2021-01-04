@@ -36,7 +36,7 @@ func usage() {
 
     Interactively lets you select profiles for samples that have been submitted
     in interactive mode. If an archive file was submitted, you will also be
-    promted to select the files to analyze from the archive.
+    prompted to select the files to analyze from the archive.
 
   list [flags]
 
