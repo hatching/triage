@@ -3,9 +3,7 @@
 
 from io import StringIO, BytesIO
 from triage.pagination import Paginator
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
-from urllib import parse
+from requests import Request, Session, exceptions
 import binascii
 import json
 import os
@@ -24,13 +22,12 @@ class Client:
             'User-Agent': 'Triage Python Client/{0} Python/{1}'
                 .format(version, sys.version.split(' ')[0]),
         }
-        return Request(self.root_url + path, headers=headers, data=data,
-            method=method)
+        return Request(method, self.root_url + path, data=data, headers=headers)
 
     def _req_file(self, method, path):
         r = self._new_request(method, path)
-        with urlopen(r) as f:
-            return f.read()
+        with Session() as s:
+            return s.send(r.prepare()).content
 
     def _req_json(self, method, path, data=None):
         body = None
@@ -38,11 +35,13 @@ class Client:
             body = StringIO(json.dumps(data))
         r = self._new_request(method, path, body)
         if data is not None:
-            r.add_header('Content-Type', 'application/json')
+            r.headers['Content-Type'] = 'application/json'
         try:
-            with urlopen(r) as f:
-                return json.load(f)
-        except HTTPError as err:
+            with Session() as s:
+                res = s.send(r.prepare())
+                res.raise_for_status()
+                return res.json()
+        except exceptions.HTTPError as err:
             raise ServerError(err)
 
     def submit_sample_file(self, filename, file, interactive=False,
@@ -85,11 +84,13 @@ class Client:
             'file': (filename, file),
         })
         r = self._new_request('POST', '/v0/samples', body)
-        r.add_header('Content-Type', content_type)
+        r.headers['Content-Type'] = content_type
         try:
-            with urlopen(r) as f:
-                return json.load(f)
-        except HTTPError as err:
+            with Session() as s:
+                res = s.send(r.prepare())
+                res.raise_for_status()
+                return res.json()
+        except exceptions.HTTPError as err:
             raise ServerError(err)
 
     def submit_sample_url(self, url, interactive=False, profiles=[]):
@@ -326,18 +327,18 @@ class Client:
                 'GET', '/v0/samples/{0}/{1}/logs/onemon.json'.format(
                     sample_id, task_id)
             )
-            f = urlopen(r)
         elif "linux" in task["platform"]:
             r =  self._new_request(
                 'GET', '/v0/samples/{0}/{1}/logs/stahp.json'.format(
                     sample_id, task_id)
             )
-            f = urlopen(r)
         else:
             raise ValueError("Platform not supported")
 
-        with f:
-            for entry in f.read().split(b"\n"):
+        with Session() as s:
+            res = s.send(r.prepare())
+            res.raise_for_status()
+            for entry in res.content.split(b"\n"):
                 if entry.strip() == b"":
                     break
                 yield json.loads(entry)
@@ -472,13 +473,16 @@ class Client:
             yield of dict events
         """
         events = self._new_request("GET", "/v0/samples/"+sample_id+"/events")
-        for r in urlopen(events):
-            yield json.loads(r)
+        with Session() as s:
+            res = s.send(events.prepare(), stream=True)
+            for line in res.iter_lines():
+                if line:
+                    yield json.loads(line)
 
 class ServerError(Exception):
-    def __init__(self, http_error):
-        b = json.load(http_error)
-        self.status = http_error.status
+    def __init__(self, err):
+        b = err.response.json()
+        self.status = err.response.status_code
         self.kind = b['error']
         self.message = b['message']
 

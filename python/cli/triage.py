@@ -279,11 +279,11 @@ def delete(sample):
 @click.argument("tasks", nargs=-1)
 def onemon(sample, tasks):
     c = client_from_env()
-    for k, v in c.overview_report(sample)["tasks"].items():
-        if v["kind"] == "behavioral":
-            if tasks and v["name"] not in tasks:
+    for k in c.overview_report(sample)["tasks"]:
+        if k["kind"] == "behavioral":
+            if tasks and k["name"] not in tasks:
                 continue
-            for line in c.kernel_report(sample, v["name"]):
+            for line in c.kernel_report(sample, k["name"]):
                 print(json.dumps(line, separators=(',', ':')))
 
 @cli.command("search", help="Use https://tria.ge/docs/cloud-api/samples/#get-search for query formats")
