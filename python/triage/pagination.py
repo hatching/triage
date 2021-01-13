@@ -37,6 +37,8 @@ class Paginator:
             self._offset = None
             self._eof = True
 
+        return len(resp['data']) > 0
+
     def __next__(self):
         if self._counter == self._max:
             raise StopIteration
@@ -44,7 +46,8 @@ class Paginator:
         if len(self._current_page) == 0:
             if self._eof:
                 raise StopIteration
-            self._fetch_next_page()
+            if not self._fetch_next_page():
+                raise StopIteration
 
         self._counter += 1
         return self._current_page.pop(0)
