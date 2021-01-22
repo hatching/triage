@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Hatching B.V.
+# Copyright (C) 2020-2021 Hatching B.V.
 # All rights reserved.
 
 import triage
@@ -297,4 +297,3 @@ class TestProfile:
             },
             headers={'Content-Type': 'application/json'}
         )
-
