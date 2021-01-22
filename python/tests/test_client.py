@@ -12,6 +12,10 @@ class BytesArg(object):
     def __eq__(a, b):
         return isinstance(b, io.BytesIO)
 
+class MultiPartArg(object):
+    def __eq__(a, b):
+        return "multipart/form-data" in b["Content-Type"]
+
 class TestSampleAction:
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
@@ -21,7 +25,8 @@ class TestSampleAction:
         r.assert_called_with(
             "POST",
             "/v0/samples",
-            b=BytesArg()
+            b=BytesArg(),
+            headers=MultiPartArg()
         )
 
     @patch('triage.Client._new_request')
@@ -38,7 +43,7 @@ class TestSampleAction:
                 'interactive': False,
                 'profiles': []
             },
-            {'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'}
         )
 
     @patch('triage.Client._new_request')
@@ -53,7 +58,7 @@ class TestSampleAction:
                 'auto': False,
                 'profiles': []
             },
-            {'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'}
         )
 
     @patch('triage.Client._new_request')
@@ -68,7 +73,7 @@ class TestSampleAction:
                 'auto': True,
                 'pick': []
             },
-            {'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'}
         )
 
 
@@ -290,6 +295,6 @@ class TestProfile:
                 "network":
                 "drop", "timeout": 30
             },
-            {'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'}
         )
 

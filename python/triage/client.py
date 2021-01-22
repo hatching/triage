@@ -38,7 +38,7 @@ class Client:
             r = self._new_request(method, path, data)
         else:
             r = self._new_request(method, path, data,
-                {'Content-Type': 'application/json'})
+                headers={'Content-Type': 'application/json'})
 
         try:
             with Session() as s:
@@ -87,8 +87,9 @@ class Client:
             }),
             'file': (filename, file),
         })
-        r = self._new_request('POST', '/v0/samples', b=body)
-        r.headers['Content-Type'] = content_type
+        r = self._new_request('POST', '/v0/samples', b=body,
+            headers={"Content-Type": content_type}
+        )
         try:
             with Session() as s:
                 res = s.send(r.prepare())
