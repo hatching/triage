@@ -3,8 +3,8 @@
 
 from io import StringIO, BytesIO
 from triage.pagination import Paginator
-from requests import Request, exceptions, utils
-import requests
+from requests import Request, Session, exceptions, utils
+
 import binascii
 import json
 import os
@@ -25,12 +25,12 @@ class Client:
             **headers
         }
         if j:
-            return requests.Request(method, self.root_url + path, data=json.dumps(j), headers=headers)
-        return requests.Request(method, self.root_url + path, data=b, headers=headers)
+            return Request(method, self.root_url + path, data=json.dumps(j), headers=headers)
+        return Request(method, self.root_url + path, data=b, headers=headers)
 
     def _req_file(self, method, path):
         r = self._new_request(method, path)
-        with requests.Session() as s:
+        with Session() as s:
             return s.send(r.prepare()).content
 
     def _req_json(self, method, path, data=None):
@@ -41,7 +41,7 @@ class Client:
                 {'Content-Type': 'application/json'})
 
         try:
-            with requests.Session() as s:
+            with Session() as s:
                 res = s.send(r.prepare())
                 res.raise_for_status()
                 return res.json()
@@ -90,7 +90,7 @@ class Client:
         r = self._new_request('POST', '/v0/samples', b=body)
         r.headers['Content-Type'] = content_type
         try:
-            with requests.Session() as s:
+            with Session() as s:
                 res = s.send(r.prepare())
                 res.raise_for_status()
                 return res.json()
