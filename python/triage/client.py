@@ -3,7 +3,8 @@
 
 from io import StringIO, BytesIO
 from triage.pagination import Paginator
-from requests import Request, Session, exceptions
+from requests import Request, exceptions, utils
+import requests
 import binascii
 import json
 import os
@@ -16,28 +17,31 @@ class Client:
         self.token = token
         self.root_url = root_url.rstrip('/')
 
-    def _new_request(self, method, path, data=None):
+    def _new_request(self, method, path, j=None, b=None, headers={}):
         headers = {
             'Authorization': 'Bearer {0}'.format(self.token),
             'User-Agent': 'Triage Python Client/{0} Python/{1}'
                 .format(version, sys.version.split(' ')[0]),
+            **headers
         }
-        return Request(method, self.root_url + path, data=data, headers=headers)
+        if j:
+            return requests.Request(method, self.root_url + path, data=json.dumps(j), headers=headers)
+        return requests.Request(method, self.root_url + path, data=b, headers=headers)
 
     def _req_file(self, method, path):
         r = self._new_request(method, path)
-        with Session() as s:
+        with requests.Session() as s:
             return s.send(r.prepare()).content
 
     def _req_json(self, method, path, data=None):
-        body = None
-        if data is not None:
-            body = StringIO(json.dumps(data))
-        r = self._new_request(method, path, body)
-        if data is not None:
-            r.headers['Content-Type'] = 'application/json'
+        if data is None:
+            r = self._new_request(method, path, data)
+        else:
+            r = self._new_request(method, path, data,
+                {'Content-Type': 'application/json'})
+
         try:
-            with Session() as s:
+            with requests.Session() as s:
                 res = s.send(r.prepare())
                 res.raise_for_status()
                 return res.json()
@@ -83,10 +87,10 @@ class Client:
             }),
             'file': (filename, file),
         })
-        r = self._new_request('POST', '/v0/samples', body)
+        r = self._new_request('POST', '/v0/samples', b=body)
         r.headers['Content-Type'] = content_type
         try:
-            with Session() as s:
+            with requests.Session() as s:
                 res = s.send(r.prepare())
                 res.raise_for_status()
                 return res.json()
@@ -249,8 +253,8 @@ class Client:
             Paginator (object):
                 Loop over this object to get the samples
         """
-        params = parse.urlencode({"query": query})
-        return Paginator(self, '/v0/search?{0}'.format(params), max)
+        params = utils.quote(query)
+        return Paginator(self, '/v0/search?query={0}'.format(params), max)
 
     def static_report(self, sample_id):
         """
