@@ -484,6 +484,9 @@ class Client:
                 if line:
                     yield json.loads(line)
 
+def PrivateClient(token):
+    return Client(token, "https://private.tria.ge/api")
+
 class ServerError(Exception):
     def __init__(self, err):
         b = err.response.json()

@@ -266,3 +266,39 @@ func (c *Client) SampleEventsByID(ctx context.Context, sampleID string) <-chan S
 	}()
 	return out
 }
+
+func (c *Client) SampleEvents(ctx context.Context) <-chan SampleEvent {
+	out := make(chan SampleEvent, 128)
+	go func() {
+		defer close(out)
+
+		r, err := c.newRequest(ctx, http.MethodGet, "/v0/samples/events", nil)
+		if err != nil {
+			out <- SampleEvent{Error: err}
+			return
+		}
+		resp, err := c.httpClient.Do(r)
+		if err != nil {
+			out <- SampleEvent{Error: err}
+			return
+		}
+
+		if resp.StatusCode > 299 {
+			out <- SampleEvent{Error: decodeAPIError(r, resp)}
+			return
+		}
+
+		dec := json.NewDecoder(resp.Body)
+		for {
+			var sample Sample
+			if err := dec.Decode(&sample); err == io.EOF {
+				return
+			} else if err != nil {
+				out <- SampleEvent{Error: err}
+				return
+			}
+			out <- SampleEvent{Sample: sample}
+		}
+	}()
+	return out
+}

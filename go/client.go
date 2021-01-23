@@ -41,6 +41,12 @@ func NewClient(token string) *Client {
 	return NewClientWithRootURL(token, "https://api.tria.ge")
 }
 
+// NewPrivateClient creates a new client with the specified access token to
+// the private cloud environment.
+func NewPrivateClient(token string) *Client {
+	return NewClientWithRootURL(token, "https://private.tria.ge/api")
+}
+
 // NewClientWithRootURL creates a client with a non-standard API root.
 func NewClientWithRootURL(token, rootURL string) *Client {
 	return &Client{
