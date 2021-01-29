@@ -499,21 +499,26 @@ func (c *Cli) paginatorFormat(samples <-chan triage.Sample) {
 		}
 
 		if sample.Status == triage.SampleStatusReported {
-			overview, err := c.client.SampleOverviewReport(context.Background(), sample.ID)
+			overview, err := c.client.SampleOverviewReport(
+				context.Background(), sample.ID,
+			)
 			if err != nil {
 				continue
 			}
 
 			if len(overview.Analysis.Family) >= 1 {
-				fmt.Printf("%v\t%s, %v\t%s\n", overview.Analysis.Score, sample.ID, overview.Analysis.Family, target)
+				fmt.Printf("%v\t%d\t%v\t%v\n",
+					sample.ID, overview.Analysis.Score,
+					overview.Analysis.Family, target,
+				)
 			} else {
-				fmt.Printf("%v\t%s\t%s\n", overview.Analysis.Score, sample.ID, target)
+				fmt.Printf("%v\t%d\t%v\n",
+					sample.ID, overview.Analysis.Score, target,
+				)
 			}
-
 		} else {
-			fmt.Printf(".\t%s\t%s\n", sample.ID, sample.Filename)
+			fmt.Printf("%s\tN/A\t%v\n", sample.ID, sample.Filename)
 		}
-
 	}
 }
 
