@@ -183,7 +183,7 @@ func (c *Client) samples(ctx context.Context, subset *string, search *string, ma
 				u = fmt.Sprintf("%v&offset=%v", u, *response.Next)
 			}
 			if err := c.jsonRequestJSON(ctx, http.MethodGet, u, nil, &response); err != nil {
-				panic(err)
+				break
 			}
 			if len(response.Data) == 0 {
 				break
