@@ -5,11 +5,11 @@ import io
 import time
 
 from triage import Client
+
 url = "https://api.tria.ge"
 token = "<YOUR-APIKEY-HERE>"
 
 c = Client(token, root_url=url)
-f = io.StringIO("some initial text data")
 r = c.submit_sample_url("http://google.com", interactive=True)
 print(r)
 print("waiting..") # triage takes some time to process

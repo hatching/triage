@@ -2,6 +2,7 @@
 # All rights reserved.
 
 from triage import Client
+
 url = "https://api.tria.ge"
 token = "<YOUR-APIKEY-HERE>"
 
