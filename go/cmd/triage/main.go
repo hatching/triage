@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Hatching B.V.
+// Copyright (C) 2019-2021 Hatching B.V.
 // All rights reserved.
 
 package main
@@ -149,7 +149,7 @@ func main() {
 			fmt.Printf("%s [flags]\n", action)
 			flags.PrintDefaults()
 		}
-		num := flags.Int("n", 20, "The maximum number of samples to return")
+		num := flags.Int("n", 1000, "The maximum number of samples to return")
 		public := flags.Bool("public", false, "Query the set of public samples")
 
 		parseFlags(flags, 0)
@@ -160,7 +160,7 @@ func main() {
 			fmt.Printf("%s [query] [flags]\n", action)
 			flags.PrintDefaults()
 		}
-		num := flags.Int("n", 20, "The maximum number of samples to return")
+		num := flags.Int("n", 1000, "The maximum number of samples to return")
 
 		parseFlags(flags, 1)
 		cli.searchSamples(action, flag.Arg(1), *num)
