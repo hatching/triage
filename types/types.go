@@ -292,18 +292,20 @@ type (
 // overview.json
 type (
 	OverviewReport struct {
-		Version   string              `json:"version"`
-		Sample    OverviewSample      `json:"sample"`
-		Tasks     []TaskSummary       `json:"tasks,omitempty"`
-		Analysis  OverviewAnalysis    `json:"analysis"`
-		Targets   []OverviewTarget    `json:"targets"`
-		Errors    []ReportedFailure   `json:"errors,omitempty"`
-		Extracted []OverviewExtracted `json:"extracted,omitempty"`
+		Version    string              `json:"version"`
+		Sample     OverviewSample      `json:"sample"`
+		Tasks      []TaskSummary       `json:"tasks,omitempty"`
+		Analysis   OverviewAnalysis    `json:"analysis"`
+		Targets    []OverviewTarget    `json:"targets"`
+		Errors     []ReportedFailure   `json:"errors,omitempty"`
+		Signatures []Signature         `json:"signatures,omitempty"`
+		Extracted  []OverviewExtracted `json:"extracted,omitempty"`
 	}
 	OverviewSample struct {
 		TargetDesc
-		Created   time.Time `json:"created"`
-		Completed time.Time `json:"completed"`
+		Created   time.Time     `json:"created"`
+		Completed time.Time     `json:"completed"`
+		IOCs      *OverviewIOCs `json:"iocs,omitempty"`
 	}
 	TaskSummary struct {
 		Sample   string   `json:"sample"`
@@ -330,12 +332,18 @@ type (
 	OverviewTarget struct {
 		Tasks []string `json:"tasks"`
 		TargetDesc
-		Tags       []string    `json:"tags,omitempty"`
-		Family     []string    `json:"family,omitempty"`
-		Signatures []Signature `json:"signatures"`
+		Tags       []string      `json:"tags,omitempty"`
+		Family     []string      `json:"family,omitempty"`
+		Signatures []Signature   `json:"signatures"`
+		IOCs       *OverviewIOCs `json:"iocs,omitempty"`
 	}
 	OverviewExtracted struct {
 		Tasks []string `json:"tasks"`
 		*Extract
+	}
+	OverviewIOCs struct {
+		URLs    []string `json:"urls,omitempty"`
+		Domains []string `json:"domains,omitempty"`
+		IPs     []string `json:"ips,omitempty"`
 	}
 )
