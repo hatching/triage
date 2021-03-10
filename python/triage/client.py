@@ -228,7 +228,20 @@ class Client:
                 }
         """
         return self._req_json('GET', '/v0/samples/{0}'.format(sample_id))
+    
+    def get_sample_file(self, sample_id):
+        """
+        Return the sample file.
 
+        Parameters:
+            sample_id (str): The id of the sample
+
+        Returns:
+            response (file):
+                File object.
+        """
+        return self._req_file("GET", "/v0/samples/{0}/sample".format(sample_id))
+    
     def delete_sample(self, sample_id):
         """
         Delete a sample.
