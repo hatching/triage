@@ -49,7 +49,7 @@ class Client:
             raise ServerError(err)
 
     def submit_sample_file(self, filename, file, interactive=False,
-                           profiles=[]):
+                           profiles=[], password=None):
         """
         Submit a file for analysis on Triage.
 
@@ -68,6 +68,8 @@ class Client:
                         "profile": "w7_long"
                     }
                 ]
+            password (str):
+                Password for the archive sample
         Returns:
             response (dict):
                 {
@@ -79,12 +81,15 @@ class Client:
                     'submitted': '2020-09-23T07:26:26Z'
                 }
         """
+        d = {
+            'kind': 'file',
+            'interactive': interactive,
+            'profiles': profiles,
+        }
+        if password:
+            d['password'] = password
         body, content_type = encode_multipart_formdata({
-            '_json': json.dumps({
-                'kind': 'file',
-                'interactive': interactive,
-                'profiles': profiles,
-            }),
+            '_json': json.dumps(d),
             'file': (filename, file),
         })
         r = self._new_request('POST', '/v0/samples', b=body,
@@ -228,7 +233,7 @@ class Client:
                 }
         """
         return self._req_json('GET', '/v0/samples/{0}'.format(sample_id))
-    
+
     def get_sample_file(self, sample_id):
         """
         Return the sample file.
@@ -241,7 +246,7 @@ class Client:
                 File object.
         """
         return self._req_file("GET", "/v0/samples/{0}/sample".format(sample_id))
-    
+
     def delete_sample(self, sample_id):
         """
         Delete a sample.

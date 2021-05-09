@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Hatching B.V.
+// Copyright (C) 2019-2021 Hatching B.V.
 // All rights reserved.
 
 package triage
@@ -76,15 +76,21 @@ type SampleEvent struct {
 	Error error
 }
 
-func (c *Client) SubmitSampleFile(ctx context.Context, filename string, file io.Reader, interactive bool, profiles []ProfileSelection) (*Sample, error) {
+func (c *Client) SubmitSampleFile(ctx context.Context, filename string, file io.Reader, interactive bool, profiles []ProfileSelection, password *string) (*Sample, error) {
+	var pw string
+	if password != nil && *password != "" {
+		pw = *password
+	}
 	jsonReq, err := json.Marshal(struct {
 		Kind        string             `json:"kind"`
 		Interactive bool               `json:"interactive"`
 		Profiles    []ProfileSelection `json:"profiles"`
+		Password    string             `json:"password,omitempty"`
 	}{
 		Kind:        "file",
 		Interactive: interactive,
 		Profiles:    profiles,
+		Password:    pw,
 	})
 	if err != nil {
 		return nil, err
