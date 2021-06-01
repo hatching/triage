@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Hatching B.V.
+// Copyright (C) 2019-2021 Hatching B.V.
 // All rights reserved.
 
 package triage
@@ -95,4 +95,12 @@ func (c *Client) SampleArchiveTAR(ctx context.Context, sampleID string) (io.Read
 func (c *Client) SampleArchiveZIP(ctx context.Context, sampleID string) (io.ReadCloser, error) {
 	path := "/v0/samples/" + sampleID + "/archive.zip"
 	return c.requestRawFile(ctx, http.MethodGet, path)
+}
+
+func (c *Client) SampleTaskPCAP(ctx context.Context, sampleID, taskID string) (io.ReadCloser, error) {
+	return c.SampleTaskFile(ctx, sampleID, taskID, "dump.pcap")
+}
+
+func (c *Client) SampleTaskPCAPNG(ctx context.Context, sampleID, taskID string) (io.ReadCloser, error) {
+	return c.SampleTaskFile(ctx, sampleID, taskID, "dump.pcapng")
 }
