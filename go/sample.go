@@ -42,7 +42,7 @@ type TaskStatus string
 
 const (
 	TaskStatusPending    TaskStatus = "pending"
-	TaskStatusSheduled   TaskStatus = "scheduled"
+	TaskStatusScheduled  TaskStatus = "scheduled"
 	TaskStatusRunning    TaskStatus = "running"
 	TaskStatusProcessing TaskStatus = "processing"
 	TaskStatusReported   TaskStatus = "reported"
