@@ -104,3 +104,7 @@ func (c *Client) SampleTaskPCAP(ctx context.Context, sampleID, taskID string) (i
 func (c *Client) SampleTaskPCAPNG(ctx context.Context, sampleID, taskID string) (io.ReadCloser, error) {
 	return c.SampleTaskFile(ctx, sampleID, taskID, "dump.pcapng")
 }
+
+func (c *Client) SampleURLScanScreenshot(ctx context.Context, sampleID string) (io.ReadCloser, error) {
+	return c.SampleTaskFile(ctx, sampleID, "urlscan1", "screenshot.png")
+}
