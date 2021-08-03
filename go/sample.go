@@ -171,6 +171,7 @@ type SampleResp struct {
 func (c *Client) samples(ctx context.Context, subset *string, search *string, max int) <-chan Sample {
 	samples := make(chan Sample)
 	go func() {
+		defer close(samples)
 		var response SampleResp
 		var counter int
 		for {
@@ -198,7 +199,6 @@ func (c *Client) samples(ctx context.Context, subset *string, search *string, ma
 				samples <- sample
 				counter++
 				if counter >= max {
-					close(samples)
 					return
 				}
 			}
@@ -206,7 +206,6 @@ func (c *Client) samples(ctx context.Context, subset *string, search *string, ma
 				break
 			}
 		}
-		close(samples)
 	}()
 	return samples
 }
