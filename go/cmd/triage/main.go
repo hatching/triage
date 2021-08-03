@@ -211,6 +211,13 @@ func main() {
 
 		parseFlags(flags, 1)
 		cli.sampleOnemon(action, flag.Arg(1), tasks)
+	case "screenshot":
+		flags.Usage = func() {
+			fmt.Printf("%s [sample]\n", action)
+			flags.PrintDefaults()
+		}
+		parseFlags(flags, 1)
+		cli.sampleScreenshotURLScan(action, flag.Arg(1))
 	case "create-profile":
 		flags.Usage = func() {
 			fmt.Printf("%s [flags]\n", action)
@@ -693,6 +700,18 @@ func (c *Cli) sampleOnemon(arg0, sampleID string, tasks []string) {
 			fmt.Printf("%s\n", entry)
 		}
 	}
+}
+
+func (c *Cli) sampleScreenshotURLScan(arg0, sampleID string) {
+	r, err := c.client.SampleURLScanScreenshot(context.Background(), sampleID)
+	if err != nil {
+		c.fatal(err)
+	}
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		c.fatal(err)
+	}
+	os.WriteFile("/tmp/screenshot.png", buf, 0644)
 }
 
 func (c *Cli) createProfile(arg0 string, name, tags, network string, timeout time.Duration) {
