@@ -170,7 +170,7 @@ func main() {
 			fmt.Printf("%s [sample] [task] [file] [flags]\n", action)
 			flags.PrintDefaults()
 		}
-		outFilename := flags.String("o", "", "The path to where the downloaded file should be saved. If `-`, the file is copied to stdout")
+		outFilename := flags.String("o", "-", "The path to where the downloaded file should be saved. If `-`, the file is copied to stdout (default)")
 
 		parseFlags(flags, 3)
 		cli.sampleFile(action, flag.Arg(1), flag.Arg(2), flag.Arg(3), *outFilename)
