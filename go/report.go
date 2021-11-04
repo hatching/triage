@@ -14,6 +14,11 @@ import (
 	"github.com/hatching/triage/types"
 )
 
+func (c *Client) SampleSample(ctx context.Context, sampleID string) (io.ReadCloser, error) {
+	path := "/v0/samples/" + sampleID + "/sample"
+	return c.requestRawFile(ctx, http.MethodGet, path)
+}
+
 func (c *Client) SampleOverviewReport(ctx context.Context, sampleID string) (*types.OverviewReport, error) {
 	var resp types.OverviewReport
 	path := "/v1/samples/" + sampleID + "/overview.json"

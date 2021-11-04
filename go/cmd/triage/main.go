@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hatching/triage/go"
+	triage "github.com/hatching/triage/go"
 	"github.com/hatching/triage/types"
 )
 
@@ -45,6 +45,10 @@ func usage() {
   search [query] [flags]
 
     Search for samples.
+
+  sample [sample]
+
+	Download the submitted "sample" file of this sample (task/analysis).
 
   file [sample] [task] [file] [flags]
 
@@ -165,6 +169,19 @@ func main() {
 
 		parseFlags(flags, 1)
 		cli.searchSamples(action, flag.Arg(1), *num, *plain)
+	case "sample":
+		flags.Usage = func() {
+			fmt.Printf("%s [sample]\n", action)
+			flags.PrintDefaults()
+		}
+		outFilename := flags.String("o", "", "The path to where the sample should be saved. If `-`, the file is copied to stdout (default)")
+		if *outFilename == "" {
+			*outFilename = flag.Arg(1)
+		}
+
+		parseFlags(flags, 1)
+		cli.sampleSample(action, flag.Arg(1), *outFilename)
+		fmt.Println("Sample downloaded to:", *outFilename)
 	case "file":
 		flags.Usage = func() {
 			fmt.Printf("%s [sample] [task] [file] [flags]\n", action)
@@ -545,7 +562,34 @@ func (c *Cli) searchSamples(action, query string, num int, plain bool) {
 	c.paginatorFormat(samples, plain)
 }
 
-func (c *Cli) sampleFile(arg0, sampleID, taskID, filename string, outFilename string) {
+func (c *Cli) sampleSample(arg0, sampleID, outFilename string) {
+	in, err := c.client.SampleSample(context.Background(), sampleID)
+	if err != nil {
+		c.fatal(err)
+	}
+	defer in.Close()
+
+	out := new(bytes.Buffer)
+	if _, err := io.Copy(out, in); err != nil {
+		c.fatal(err)
+	}
+
+	if outFilename == "-" {
+		if _, err = os.Stdout.Write(out.Bytes()); err != nil {
+			c.fatal(err)
+		}
+	} else {
+		outName := outFilename
+		if outName == "" {
+			outName = sampleID
+		}
+		if err = ioutil.WriteFile(outName, out.Bytes(), 0644); err != nil {
+			c.fatal(err)
+		}
+	}
+}
+
+func (c *Cli) sampleFile(arg0, sampleID, taskID, filename, outFilename string) {
 	in, err := c.client.SampleTaskFile(context.Background(), sampleID, taskID, filename)
 	if err != nil {
 		c.fatal(err)
