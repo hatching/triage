@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Hatching B.V.
+// Copyright (C) 2019-2021 Hatching B.V.
 // All rights reserved.
 
 package triage
@@ -7,20 +7,20 @@ import (
 	"context"
 	"strings"
 	"testing"
-
-	mock_triage "github.com/hatching/triage/go/mock"
 )
 
 func TestSubmitUrl(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
 	t.Run("test success", func(t *testing.T) {
-		_, err := client.SubmitSampleURL(ctx, "http://meme.nl", false, []ProfileSelection{})
+		_, err := client.SubmitSampleURL(
+			ctx, "http://google.com", false, []ProfileSelection{},
+		)
 		if err != nil {
 			t.Error(err)
 		}
@@ -30,13 +30,15 @@ func TestSubmitUrl(t *testing.T) {
 		if m.RequestUrl != "/v0/samples" {
 			t.Fatal("Unexpected endpoint")
 		}
-		if m.RequestBody != `{"interactive":false,"kind":"url","profiles":[],"url":"http://meme.nl"}` {
+		if m.RequestBody != `{"interactive":false,"kind":"url","profiles":[],"url":"http://google.com"}` {
 			t.Fatal("Unexpected request body")
 		}
 	})
 	t.Run("test fail", func(t *testing.T) {
 		m.StatusCode = 400
-		_, err := client.SubmitSampleURL(ctx, "http://meme.nl", false, []ProfileSelection{})
+		_, err := client.SubmitSampleURL(
+			ctx, "http://google.com", false, []ProfileSelection{},
+		)
 		if !strings.Contains(err.Error(), "400") {
 			t.Fatalf("expected error")
 		}
@@ -45,7 +47,7 @@ func TestSubmitUrl(t *testing.T) {
 
 func TestSearchForUser(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = struct {
 		Next string   `json:"next"`
 		Data []Sample `json:"data"`
@@ -81,7 +83,7 @@ func TestSearchForUser(t *testing.T) {
 
 func TestSamplesForUser(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = struct {
 		Next string   `json:"next"`
 		Data []Sample `json:"data"`
@@ -117,20 +119,17 @@ func TestSamplesForUser(t *testing.T) {
 
 func TestPublicSamples(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = struct {
 		Next string   `json:"next"`
 		Data []Sample `json:"data"`
 	}{
 		Next: "2006-01-02T15:04:05Z07:00",
-		Data: []Sample{
-			{
-				ID: "test1",
-			},
-			{
-				ID: "test2",
-			},
-		},
+		Data: []Sample{{
+			ID: "test1",
+		}, {
+			ID: "test2",
+		}},
 	}
 	m.StatusCode = 200
 	client := &Client{
@@ -153,7 +152,7 @@ func TestPublicSamples(t *testing.T) {
 
 func TestSampleById(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
@@ -177,13 +176,14 @@ func TestSampleById(t *testing.T) {
 
 func TestSetSampleProfile(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
-	if err := client.SetSampleProfile(ctx, "test-123", []ProfileSelection{}); err != nil {
+	err := client.SetSampleProfile(ctx, "test-123", []ProfileSelection{})
+	if err != nil {
 		t.Fatal(err)
 	}
 	if m.RequestMethod != "POST" {
@@ -199,13 +199,16 @@ func TestSetSampleProfile(t *testing.T) {
 
 func TestSetSampleProfileAutomatically(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
-	if err := client.SetSampleProfileAutomatically(ctx, "test-123", []string{"file1.exe"}); err != nil {
+	err := client.SetSampleProfileAutomatically(
+		ctx, "test-123", []string{"file1.exe"},
+	)
+	if err != nil {
 		t.Fatal(err)
 	}
 	if m.RequestMethod != "POST" {
@@ -221,7 +224,7 @@ func TestSetSampleProfileAutomatically(t *testing.T) {
 
 func TestDeleteSample(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{

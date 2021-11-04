@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Hatching B.V.
+// Copyright (C) 2020-2021 Hatching B.V.
 // All rights reserved.
 
 package main
@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hatching/triage/go"
+	triage "github.com/hatching/triage/go"
 )
 
 const (
@@ -26,9 +26,10 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("submitted", sample.ID)
-	if err := client.DeleteSample(context.Background(), sample.ID); err != nil {
+	fmt.Println("submitted:", sample.ID)
+	err = client.DeleteSample(context.Background(), sample.ID)
+	if err != nil {
 		panic(err)
 	}
-	fmt.Println("deleted", sample.ID)
+	fmt.Println("deleted:", sample.ID)
 }

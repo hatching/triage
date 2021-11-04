@@ -22,7 +22,8 @@ func (c *Client) SampleSample(ctx context.Context, sampleID string) (io.ReadClos
 func (c *Client) SampleOverviewReport(ctx context.Context, sampleID string) (*types.OverviewReport, error) {
 	var resp types.OverviewReport
 	path := "/v1/samples/" + sampleID + "/overview.json"
-	if err := c.jsonRequestJSON(ctx, http.MethodGet, path, nil, &resp); err != nil {
+	err := c.jsonRequestJSON(ctx, http.MethodGet, path, nil, &resp)
+	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -31,18 +32,19 @@ func (c *Client) SampleOverviewReport(ctx context.Context, sampleID string) (*ty
 func (c *Client) SampleStaticReport(ctx context.Context, sampleID string) (*types.StaticReport, error) {
 	var resp types.StaticReport
 	path := "/v0/samples/" + sampleID + "/reports/static"
-	if err := c.jsonRequestJSON(ctx, http.MethodGet, path, nil, &resp); err != nil {
+	err := c.jsonRequestJSON(ctx, http.MethodGet, path, nil, &resp)
+	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) SampleTaskKernelReport(ctx context.Context, sampleID, taskID string) ([]json.RawMessage, error) {
-	var resp []json.RawMessage
+func (c *Client) SampleTaskKernelReport(ctx context.Context, sampleID, taskID string) (<-chan json.RawMessage, error) {
 	overview, err := c.SampleOverviewReport(ctx, sampleID)
 	if err != nil {
-		return resp, err
+		return nil, err
 	}
+
 	var task *types.TaskSummary
 	for _, t := range overview.Tasks {
 		if t.Name == taskID {
@@ -51,37 +53,51 @@ func (c *Client) SampleTaskKernelReport(ctx context.Context, sampleID, taskID st
 		}
 	}
 	if task == nil {
-		return resp, fmt.Errorf("Task does not exist")
+		return nil, fmt.Errorf("Task does not exist")
 	}
-	var file io.ReadCloser
-	if strings.Contains(task.Platform, "windows") {
-		if file, err = c.requestRawFile(ctx, "GET", fmt.Sprintf("/v0/samples/%s/%s/logs/onemon.json", sampleID, taskID)); err != nil {
-			return resp, err
-		}
-	} else if strings.Contains(task.Platform, "linux") {
-		if file, err = c.requestRawFile(ctx, "GET", fmt.Sprintf("/v0/samples/%s/%s/logs/stahp.json", sampleID, taskID)); err != nil {
-			return resp, err
-		}
-	} else {
-		return resp, fmt.Errorf("Platform not supported")
+
+	var proto string
+	switch {
+	case strings.Contains(task.Platform, "windows"):
+		proto = "onemon.json"
+	case strings.Contains(task.Platform, "linux"):
+		proto = "stahp.json"
+	case strings.Contains(task.Platform, "macos"):
+		proto = "bigmac.json"
+	case strings.Contains(task.Platform, "android"):
+		proto = "droidy.json"
+	default:
+		return nil, fmt.Errorf("Platform not supported")
 	}
-	d := json.NewDecoder(file)
-	for {
-		var event json.RawMessage
-		if err := d.Decode(&event); err == io.EOF {
-			break
-		} else if err != nil {
-			return nil, err
-		}
-		resp = append(resp, event)
+
+	file, err := c.requestRawFile(ctx, "GET", fmt.Sprint(
+		"/v0/samples/", sampleID, "/", taskID, "/logs/", proto,
+	))
+	if err != nil {
+		return nil, err
 	}
-	return resp, nil
+
+	ret := make(chan json.RawMessage)
+	go func() {
+		defer close(ret)
+		d := json.NewDecoder(file)
+		for {
+			var event json.RawMessage
+			err := d.Decode(&event)
+			if err != nil {
+				break
+			}
+			ret <- event
+		}
+	}()
+	return ret, nil
 }
 
 func (c *Client) SampleTaskReport(ctx context.Context, sampleID, taskID string) (*types.TriageReport, error) {
 	var resp types.TriageReport
 	path := "/v0/samples/" + sampleID + "/" + taskID + "/report_triage.json"
-	if err := c.jsonRequestJSON(ctx, http.MethodGet, path, nil, &resp); err != nil {
+	err := c.jsonRequestJSON(ctx, http.MethodGet, path, nil, &resp)
+	if err != nil {
 		return nil, err
 	}
 	return &resp, nil

@@ -6,7 +6,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -725,23 +724,27 @@ func (c *Cli) sampleOnemon(arg0, sampleID string, tasks []string) {
 		if task.Kind != "behavioral" || task.Name == "" {
 			continue
 		}
-		var msg []json.RawMessage
+
+		var ok bool
 		if len(tasks) == 0 {
-			if msg, err = c.client.SampleTaskKernelReport(context.Background(), sampleID, task.Name); err != nil {
-				c.fatal(err)
-			}
+			ok = true
 		}
 		for _, userTask := range tasks {
 			if userTask == task.Name {
-				if msg, err = c.client.SampleTaskKernelReport(context.Background(), sampleID, task.Name); err != nil {
-					c.fatal(err)
-				}
+				ok = true
 			}
 		}
-		if msg == nil {
+		if ok == false {
 			continue
 		}
-		for _, entry := range msg {
+
+		rows, err := c.client.SampleTaskKernelReport(
+			context.Background(), sampleID, task.Name,
+		)
+		if err != nil {
+			c.fatal(err)
+		}
+		for entry := range rows {
 			fmt.Printf("%s\n", entry)
 		}
 	}

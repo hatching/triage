@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Hatching B.V.
+// Copyright (C) 2020-2021 Hatching B.V.
 // All rights reserved.
 
 package main
@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hatching/triage/go"
+	triage "github.com/hatching/triage/go"
 )
 
 const (
@@ -26,7 +26,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("submitted ", sample.ID)
+	fmt.Println("submitted:", sample.ID)
 	for msg := range client.SampleEventsByID(context.Background(), sample.ID) {
 		fmt.Println(msg.Status)
 	}

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Hatching B.V.
+// Copyright (C) 2020-2021 Hatching B.V.
 // All rights reserved.
 
 package main
@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hatching/triage/go"
+	triage "github.com/hatching/triage/go"
 )
 
 const (
@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(sample.ID)
+	fmt.Println("sample:", sample.ID)
 
 	err = client.SetSampleProfileAutomatically(
 		context.Background(), sample.ID, []string{},

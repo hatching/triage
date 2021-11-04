@@ -81,7 +81,7 @@ func (c *Client) SubmitSampleFile(ctx context.Context, filename string, file io.
 	if password != nil && *password != "" {
 		pw = *password
 	}
-	jsonReq, err := json.Marshal(struct {
+	request, err := json.Marshal(struct {
 		Kind        string             `json:"kind"`
 		Interactive bool               `json:"interactive"`
 		Profiles    []ProfileSelection `json:"profiles"`
@@ -103,10 +103,12 @@ func (c *Client) SubmitSampleFile(ctx context.Context, filename string, file io.
 			mw.Close()
 			w.Close()
 		}()
+
 		jsonField, _ := mw.CreateFormField("_json")
-		_, _ = jsonField.Write(jsonReq)
+		jsonField.Write(request)
+
 		fileField, _ := mw.CreateFormFile("file", filename)
-		_, _ = io.Copy(fileField, file)
+		io.Copy(fileField, file)
 	}()
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v0/samples", r)
@@ -115,11 +117,12 @@ func (c *Client) SubmitSampleFile(ctx context.Context, filename string, file io.
 	}
 	req.Header.Set("Content-Type", mw.FormDataContentType())
 
-	var respSample Sample
-	if err := c.requestJSON(req, &respSample); err != nil {
+	var ret Sample
+	err = c.requestJSON(req, &ret)
+	if err != nil {
 		return nil, err
 	}
-	return &respSample, nil
+	return &ret, nil
 }
 
 func (c *Client) SubmitSampleURL(ctx context.Context, url string, interactive bool, profiles []ProfileSelection) (*Sample, error) {
@@ -135,7 +138,8 @@ func (c *Client) SubmitSampleURL(ctx context.Context, url string, interactive bo
 		Profiles:    profiles,
 	}
 	var resp Sample
-	if err := c.jsonRequestJSON(ctx, http.MethodPost, "/v0/samples", req, &resp); err != nil {
+	err := c.jsonRequestJSON(ctx, http.MethodPost, "/v0/samples", req, &resp)
+	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -149,7 +153,9 @@ func (c *Client) SetSampleProfile(ctx context.Context, sampleID string, profiles
 		Auto:     false,
 		Profiles: profiles,
 	}
-	return c.jsonRequestJSON(ctx, http.MethodPost, "/v0/samples/"+sampleID+"/profile", req, nil)
+	return c.jsonRequestJSON(
+		ctx, http.MethodPost, "/v0/samples/"+sampleID+"/profile", req, nil,
+	)
 }
 
 func (c *Client) SetSampleProfileAutomatically(ctx context.Context, sampleID string, pick []string) error {
@@ -160,7 +166,9 @@ func (c *Client) SetSampleProfileAutomatically(ctx context.Context, sampleID str
 		Auto: true,
 		Pick: pick,
 	}
-	return c.jsonRequestJSON(ctx, http.MethodPost, "/v0/samples/"+sampleID+"/profile", req, nil)
+	return c.jsonRequestJSON(
+		ctx, http.MethodPost, "/v0/samples/"+sampleID+"/profile", req, nil,
+	)
 }
 
 type SampleResp struct {
@@ -168,7 +176,7 @@ type SampleResp struct {
 	Next *string  `json:"next"`
 }
 
-func (c *Client) samples(ctx context.Context, subset *string, search *string, max int) <-chan Sample {
+func (c *Client) samples(ctx context.Context, subset, search *string, max int) <-chan Sample {
 	samples := make(chan Sample)
 	go func() {
 		defer close(samples)
@@ -181,15 +189,20 @@ func (c *Client) samples(ctx context.Context, subset *string, search *string, ma
 			}
 			var u string
 			if subset != nil {
-				u = fmt.Sprintf("/v0/samples?subset=%v&limit=%v", *subset, limit)
+				u = fmt.Sprint(
+					"/v0/samples?subset=", *subset, "&limit=", limit,
+				)
 			} else {
-				query := url.QueryEscape(*search)
-				u = fmt.Sprintf("/v0/search?query=%v&limit=%v", query, limit)
+				u = fmt.Sprint(
+					"/v0/search?query=", url.QueryEscape(*search),
+					"&limit=", limit,
+				)
 			}
 			if response.Next != nil {
-				u = fmt.Sprintf("%v&offset=%v", u, *response.Next)
+				u += fmt.Sprint("&offset=", *response.Next)
 			}
-			if err := c.jsonRequestJSON(ctx, http.MethodGet, u, nil, &response); err != nil {
+			err := c.jsonRequestJSON(ctx, http.MethodGet, u, nil, &response)
+			if err != nil {
 				break
 			}
 			if len(response.Data) == 0 {
@@ -226,14 +239,19 @@ func (c *Client) Search(ctx context.Context, query string, max int) <-chan Sampl
 
 func (c *Client) SampleByID(ctx context.Context, sampleID string) (*Sample, error) {
 	var resp Sample
-	if err := c.jsonRequestJSON(ctx, http.MethodGet, "/v0/samples/"+sampleID, nil, &resp); err != nil {
+	err := c.jsonRequestJSON(
+		ctx, http.MethodGet, "/v0/samples/"+sampleID, nil, &resp,
+	)
+	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
 func (c *Client) DeleteSample(ctx context.Context, sampleID string) error {
-	return c.jsonRequestJSON(ctx, http.MethodDelete, "/v0/samples/"+sampleID, nil, nil)
+	return c.jsonRequestJSON(
+		ctx, http.MethodDelete, "/v0/samples/"+sampleID, nil, nil,
+	)
 }
 
 func (c *Client) SampleEventsByID(ctx context.Context, sampleID string) <-chan SampleEvent {
@@ -241,7 +259,9 @@ func (c *Client) SampleEventsByID(ctx context.Context, sampleID string) <-chan S
 	go func() {
 		defer close(out)
 
-		r, err := c.newRequest(ctx, http.MethodGet, "/v0/samples/"+sampleID+"/events", nil)
+		r, err := c.newRequest(
+			ctx, http.MethodGet, "/v0/samples/"+sampleID+"/events", nil,
+		)
 		if err != nil {
 			out <- SampleEvent{Error: err}
 			return
