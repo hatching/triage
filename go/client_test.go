@@ -1,13 +1,13 @@
-// Copyright (C) 2020 Hatching B.V.
+// Copyright (C) 2020-2021 Hatching B.V.
 // All rights reserved.
 
-package mock_triage
+package triage
 
 import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	http "net/http"
+	"net/http"
 )
 
 type ClientMock struct {

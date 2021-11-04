@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Hatching B.V.
+// Copyright (C) 2019-2021 Hatching B.V.
 // All rights reserved.
 
 package triage
@@ -25,7 +25,8 @@ func (c *Client) CreateProfile(ctx context.Context, name string, tags []string, 
 		Timeout: uint(timeout / time.Second),
 	}
 	var resp Profile
-	if err := c.jsonRequestJSON(ctx, http.MethodPost, "/v0/profiles", req, &resp); err != nil {
+	err := c.jsonRequestJSON(ctx, http.MethodPost, "/v0/profiles", req, &resp)
+	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -33,17 +34,20 @@ func (c *Client) CreateProfile(ctx context.Context, name string, tags []string, 
 
 // DeleteProfile deletes a profile by its ID or name.
 func (c *Client) DeleteProfile(ctx context.Context, id string) error {
-	return c.jsonRequestJSON(ctx, http.MethodDelete, "/v0/profiles/"+id, nil, nil)
-}
-
-type ProfileResp struct {
-	Data []Profile `json:"data"`
+	return c.jsonRequestJSON(
+		ctx, http.MethodDelete, "/v0/profiles/"+id, nil, nil,
+	)
 }
 
 func (c *Client) Profiles(ctx context.Context) ([]Profile, error) {
-	var response ProfileResp
-	if err := c.jsonRequestJSON(ctx, http.MethodGet, "/v0/profiles", nil, &response); err != nil {
-		return response.Data, err
+	var response struct {
+		Data []Profile `json:"data"`
 	}
-	return response.Data, nil
+	err := c.jsonRequestJSON(
+		ctx, http.MethodGet, "/v0/profiles", nil, &response,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Data, err
 }

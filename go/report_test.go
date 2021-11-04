@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Hatching B.V.
+// Copyright (C) 2019-2021 Hatching B.V.
 // All rights reserved.
 
 package triage
@@ -6,19 +6,18 @@ package triage
 import (
 	"context"
 	"testing"
-
-	mock_triage "github.com/hatching/triage/go/mock"
 )
 
 func TestStaticReport(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
-	if _, err := client.SampleStaticReport(ctx, "test-123"); err != nil {
+	_, err := client.SampleStaticReport(ctx, "test-123")
+	if err != nil {
 		t.Fatal(err)
 	}
 	if m.RequestUrl != "/v0/samples/test-123/reports/static" {
@@ -31,13 +30,14 @@ func TestStaticReport(t *testing.T) {
 
 func TestOverviewReport(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
-	if _, err := client.SampleOverviewReport(ctx, "test-123"); err != nil {
+	_, err := client.SampleOverviewReport(ctx, "test-123")
+	if err != nil {
 		t.Fatal(err)
 	}
 	if m.RequestUrl != "/v1/samples/test-123/overview.json" {
@@ -50,13 +50,14 @@ func TestOverviewReport(t *testing.T) {
 
 func TestTaskReport(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
-	if _, err := client.SampleTaskReport(ctx, "test-123", "task-5"); err != nil {
+	_, err := client.SampleTaskReport(ctx, "test-123", "task-5")
+	if err != nil {
 		t.Fatal(err)
 	}
 	if m.RequestUrl != "/v0/samples/test-123/task-5/report_triage.json" {
@@ -69,13 +70,14 @@ func TestTaskReport(t *testing.T) {
 
 func TestTaskFile(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
-	if _, err := client.SampleTaskFile(ctx, "test-123", "task-5", "file-x"); err != nil {
+	_, err := client.SampleTaskFile(ctx, "test-123", "task-5", "file-x")
+	if err != nil {
 		t.Fatal(err)
 	}
 	if m.RequestUrl != "/v0/samples/test-123/task-5/file-x" {
@@ -88,7 +90,7 @@ func TestTaskFile(t *testing.T) {
 
 func TestArchiveTar(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
@@ -107,7 +109,7 @@ func TestArchiveTar(t *testing.T) {
 
 func TestArchiveZIP(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{

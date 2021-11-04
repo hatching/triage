@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Hatching B.V.
+// Copyright (C) 2020-2021 Hatching B.V.
 // All rights reserved.
 
 package main
@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hatching/triage/go"
+	triage "github.com/hatching/triage/go"
 )
 
 const (
@@ -18,7 +18,8 @@ const (
 func main() {
 	client := triage.NewClientWithRootURL(Token, Triage)
 
-	for sample := range client.Search(context.Background(), "NOT family:emotet", 20) {
-		fmt.Println("found ", sample.ID)
+	search := client.Search(context.Background(), "NOT family:emotet", 20)
+	for sample := range search {
+		fmt.Println("found:", sample.ID)
 	}
 }

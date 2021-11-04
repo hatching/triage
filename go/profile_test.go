@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Hatching B.V.
+// Copyright (C) 2020-2021 Hatching B.V.
 // All rights reserved.
 
 package triage
@@ -6,19 +6,18 @@ package triage
 import (
 	"context"
 	"testing"
-
-	mock_triage "github.com/hatching/triage/go/mock"
 )
 
 func TestCreateProfile(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{
 		httpClient: &m,
 	}
-	if _, err := client.CreateProfile(ctx, "pf1", []string{}, "notwork", 30); err != nil {
+	_, err := client.CreateProfile(ctx, "pf1", []string{}, "notwork", 30)
+	if err != nil {
 		t.Fatal(err)
 	}
 	if m.RequestUrl != "/v0/profiles" {
@@ -31,7 +30,7 @@ func TestCreateProfile(t *testing.T) {
 
 func TestDeleteProfile(t *testing.T) {
 	ctx := context.Background()
-	m := mock_triage.ClientMock{}
+	m := ClientMock{}
 	m.Response = nil
 	m.StatusCode = 200
 	client := &Client{

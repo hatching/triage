@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Hatching B.V.
+// Copyright (C) 2019-2021 Hatching B.V.
 // All rights reserved.
 
 package triage
@@ -7,16 +7,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"runtime"
 )
 
 const maxLimit = 200
-const clientVersion = "alpha"
 
 // A Client can be used to make requests to the Triage API.
 type Client struct {
@@ -62,11 +59,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, body io.Re
 		return nil, fmt.Errorf("triage: %w", err)
 	}
 	r.Header.Set("Authorization", "Bearer "+c.token)
-	r.Header.Set("User-Agent", fmt.Sprintf(
-		"Triage Go Client/%s Go/%s",
-		clientVersion,
-		runtime.Version(),
-	))
+	r.Header.Set("User-Agent", "Hatching Triage Go Client")
 	return r, nil
 }
 
@@ -156,17 +149,6 @@ func decodeAPIError(r *http.Request, resp *http.Response) error {
 
 func (err Error) Error() string {
 	return fmt.Sprintf("triage: %d %s: %v", err.Status, err.Kind, err.Message)
-}
-
-// ErrorKind returns the kind of the specified error.
-//
-// If the error is not a Triage error, an empty string is returned.
-func ErrorKind(err error) string {
-	var apiErr Error
-	if errors.As(err, &apiErr) {
-		return apiErr.Kind
-	}
-	return ""
 }
 
 type httpResponseReader struct {
