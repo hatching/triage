@@ -62,8 +62,8 @@ type Sample struct {
 	Filename    string       `json:"filename"`
 	URL         string       `json:"url"`
 	Tasks       []Task       `json:"tasks"`
-	SubmittedAt time.Time    `json:"completed"`
-	CompletedAt *time.Time   `json:"submitted"`
+	SubmittedAt time.Time    `json:"submitted"`
+	CompletedAt *time.Time   `json:"completed"`
 }
 
 type ProfileSelection struct {
