@@ -154,9 +154,10 @@ func main() {
 		}
 		num := flags.Int("n", 1000, "The maximum number of samples to return")
 		public := flags.Bool("public", false, "Query the set of public samples")
+		plain := flags.Bool("plain", false, "Only report sample ids")
 
 		parseFlags(flags, 0)
-		cli.listSamples(action, *num, *public)
+		cli.listSamples(action, *num, *public, *plain)
 	case "search":
 		flags.Usage = func() {
 			fmt.Println("Use https://tria.ge/docs/cloud-api/samples/#get-search for query formats")
@@ -546,14 +547,14 @@ func (c *Cli) paginatorFormat(samples <-chan triage.Sample, plain bool) {
 	}
 }
 
-func (c *Cli) listSamples(arg0 string, num int, public bool) {
+func (c *Cli) listSamples(arg0 string, num int, public, plain bool) {
 	var samples <-chan triage.Sample
 	if public {
 		samples = c.client.PublicSamples(context.Background(), num)
 	} else {
 		samples = c.client.SamplesForUser(context.Background(), num)
 	}
-	c.paginatorFormat(samples, false)
+	c.paginatorFormat(samples, plain)
 }
 
 func (c *Cli) searchSamples(action, query string, num int, plain bool) {
