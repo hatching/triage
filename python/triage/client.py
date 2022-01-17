@@ -508,10 +508,14 @@ def PrivateClient(token):
 
 class ServerError(Exception):
     def __init__(self, err):
-        b = err.response.json()
+        try:
+            b = err.response.json()
+        except json.JSONDecodeError:
+            b = {}
+
         self.status = err.response.status_code
-        self.kind = b['error']
-        self.message = b['message']
+        self.kind = b.get("error", "")
+        self.message = b.get("message", "")
 
     def __str__(self):
         return 'triage: {0} {1}: {2}'.format(
