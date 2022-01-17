@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Hatching B.V
+# Copyright (C) 2020-2022 Hatching B.V
 # All rights reserved.
 
 class Paginator:

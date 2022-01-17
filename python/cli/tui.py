@@ -1,7 +1,5 @@
-# Copyright (C) 2020 Hatching B.V.
+# Copyright (C) 2020-2022 Hatching B.V.
 # All rights reserved.
-
-import json
 
 def prompt_select_options(options, key, f=None):
     print("\nMake your selection by entering the numbers as listed below "
