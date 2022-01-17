@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2021 Hatching B.V
+# Copyright (C) 2020-2022 Hatching B.V
 # All rights reserved.
 
-from io import StringIO, BytesIO
+from io import BytesIO
 from triage.pagination import Paginator
 from requests import Request, Session, exceptions, utils
 
