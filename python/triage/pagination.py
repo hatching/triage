@@ -29,7 +29,6 @@ class Paginator:
             path = path + '&offset={0}'.format(self._offset)
 
         resp = self._client._req_json('GET', path)
-        self._current_page = resp['data']
 
         if resp.get('next'):
             self._offset = resp['next']
@@ -37,7 +36,9 @@ class Paginator:
             self._offset = None
             self._eof = True
 
-        return len(resp['data']) > 0
+        self._current_page = resp['data'] or []
+
+        return len(self._current_page) > 0
 
     def __next__(self):
         if self._counter == self._max:
