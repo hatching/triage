@@ -41,7 +41,8 @@ def cli():
 
 @cli.command()
 @click.argument("token")
-@click.option("-u", "--url", default="https://api.tria.ge", help="The endpoint of your triage instance")
+@click.option("-u", "--url", default="https://api.tria.ge", show_default=True,
+              help="The endpoint of your triage instance")
 def authenticate(token, url):
     tokenfile = token_file()
     if os.path.exists(tokenfile):
@@ -219,7 +220,8 @@ def paginator_format(c, i):
         ))
 
 @cli.command("list")
-@click.option("-n", default=20, help="The maximum number of samples to return")
+@click.option("-n", default=20, show_default=True,
+              help="The maximum number of samples to return")
 @click.option("-p", "--public", is_flag=True, help="List public samples")
 def list_samples(public, n):
     c = client_from_env()
@@ -244,7 +246,7 @@ def get_file(sample, task, file, output):
 
 @cli.command("archive")
 @click.argument("sample")
-@click.option("-f", "--format", default="tar",
+@click.option("-f", "--format", default="tar", show_default=True,
     help="The archive format. Either \"tar\" or \"zip\"")
 @click.option("-o", "--output", help="The target file name. If `-`, the file "
 "is copied to stdout. Defaults to the sample ID with appropriate extension")
@@ -288,7 +290,8 @@ def onemon(sample, tasks):
 
 @cli.command("search", help="Use https://tria.ge/docs/cloud-api/samples/#get-search for query formats")
 @click.argument("query")
-@click.option("-n", default=20, help="The maximum number of samples to return")
+@click.option("-n", default=20, show_default=True,
+              help="The maximum number of samples to return")
 def search(query, n):
     c = client_from_env()
     for i in c.search(query, n):
@@ -361,9 +364,11 @@ def delete_profile(profile):
     print(r)
 
 @cli.command("list-profiles")
-def list_profiles():
+@click.option("-n", default=20, show_default=True,
+              help="The maximum number of profiles to return")
+def list_profiles(n):
     c = client_from_env()
-    for i in c.profiles():
+    for i in c.profiles(max=n):
         print(i["name"])
         print("  timeout:", i["timeout"])
         print("  network:", i["network"])
