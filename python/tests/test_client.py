@@ -1,12 +1,12 @@
 # Copyright (C) 2020-2021 Hatching B.V.
 # All rights reserved.
 
-import triage
 import io
-import pytest
-from requests import Session, Request
+
 from mock import patch, Mock
-import io
+from requests import Session
+
+import triage
 
 class BytesArg(object):
     def __eq__(a, b):
