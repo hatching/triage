@@ -503,6 +503,8 @@ class Client:
         events = self._new_request("GET", "/v0/samples/"+sample_id+"/events")
         with Session() as s:
             settings = s.merge_environment_settings(events.url, {}, None, False, None)
+            if 'stream' in settings:
+                del settings['stream']
             res = s.send(events.prepare(), stream=True, **settings)
             for line in res.iter_lines():
                 if line:
