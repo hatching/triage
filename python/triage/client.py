@@ -6,11 +6,14 @@ from triage.pagination import Paginator
 from requests import Request, Session, exceptions, utils
 
 import binascii
+import urllib3
 import json
 import os
 import sys
 
 version = 'alpha'
+
+urllib3.disable_warnings()
 
 class Client:
     def __init__(self, token, root_url='https://api.tria.ge'):
