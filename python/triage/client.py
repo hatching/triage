@@ -31,7 +31,8 @@ class Client:
     def _req_file(self, method, path):
         r = self._new_request(method, path)
         with Session() as s:
-            return s.send(r.prepare()).content
+            settings = s.merge_environment_settings(r.url, {}, None, False, None)
+            return s.send(r.prepare(), **settings).content
 
     def _req_json(self, method, path, data=None):
         if data is None:
@@ -42,7 +43,8 @@ class Client:
 
         try:
             with Session() as s:
-                res = s.send(r.prepare())
+                settings = s.merge_environment_settings(r.url, {}, None, False, None)
+                res = s.send(r.prepare(), **settings)
                 res.raise_for_status()
                 return res.json()
         except exceptions.HTTPError as err:
@@ -97,7 +99,8 @@ class Client:
         )
         try:
             with Session() as s:
-                res = s.send(r.prepare())
+                settings = s.merge_environment_settings(r.url, {}, None, False, None)
+                res = s.send(r.prepare(), **settings)
                 res.raise_for_status()
                 return res.json()
         except exceptions.HTTPError as err:
@@ -359,7 +362,8 @@ class Client:
             raise ValueError("Platform not supported")
 
         with Session() as s:
-            res = s.send(r.prepare())
+            settings = s.merge_environment_settings(r.url, {}, None, False, None)
+            res = s.send(r.prepare(), **settings)
             res.raise_for_status()
             for entry in res.content.split(b"\n"):
                 if entry.strip() == b"":
@@ -498,7 +502,8 @@ class Client:
         """
         events = self._new_request("GET", "/v0/samples/"+sample_id+"/events")
         with Session() as s:
-            res = s.send(events.prepare(), stream=True)
+            settings = s.merge_environment_settings(events.url, {}, None, False, None)
+            res = s.send(events.prepare(), stream=True, **settings)
             for line in res.iter_lines():
                 if line:
                     yield json.loads(line)
