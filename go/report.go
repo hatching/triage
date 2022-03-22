@@ -60,7 +60,7 @@ func (c *Client) SampleTaskKernelReport(ctx context.Context, sampleID, taskID st
 	switch {
 	case strings.Contains(task.Platform, "windows"):
 		proto = "onemon.json"
-	case strings.Contains(task.Platform, "linux"):
+	case strings.Contains(task.Platform, "linux"), strings.Contains(task.Platform, "ubuntu"):
 		proto = "stahp.json"
 	case strings.Contains(task.Platform, "macos"):
 		proto = "bigmac.json"
