@@ -351,18 +351,21 @@ class Client:
         else:
             raise ValueError("Task does not exist")
 
+        log_file = None
         if "windows" in task["platform"]:
-            r =  self._new_request(
-                'GET', '/v0/samples/{0}/{1}/logs/onemon.json'.format(
-                    sample_id, task_id)
-            )
-        elif "linux" in task["platform"]:
-            r =  self._new_request(
-                'GET', '/v0/samples/{0}/{1}/logs/stahp.json'.format(
-                    sample_id, task_id)
-            )
+            log_file = "onemon"
+        elif "linux" in task["platform"] or "ubuntu" in task["platform"]:
+            log_file = "stahp"
+        elif "macos" in task["platform"]:
+            log_file = "bigmac"
+        elif "android" in task["platform"]:
+            log_file = "droidy"
         else:
             raise ValueError("Platform not supported")
+
+        r =  self._new_request(
+                'GET', '/v0/samples/{0}/{1}/logs/{2}.json'.format(
+                    sample_id, task_id, log_file)
 
         with Session() as s:
             settings = s.merge_environment_settings(r.url, {}, None, False, None)
