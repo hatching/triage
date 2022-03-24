@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="hatching-triage",
-    version="0.1.6",
+    version="0.1.7",
     author="Hatching B.V.",
     author_email="info@hatching.io",
     description="API client and CLI for Hatching Triage",
