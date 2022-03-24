@@ -19,7 +19,8 @@ class MultiPartArg(object):
 class TestSampleAction:
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_submit_file(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_submit_file(self, m, s, r):
         c = triage.Client("token")
         c.submit_sample_file("test", io.StringIO("file"))
         r.assert_called_with(
@@ -31,7 +32,8 @@ class TestSampleAction:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_submit_url(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_submit_url(self, m, s, r):
         c = triage.Client("token")
         c.submit_sample_url("http://9gag.com")
         r.assert_called_with(
@@ -48,7 +50,8 @@ class TestSampleAction:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_profile(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_profile(self, m, s, r):
         c = triage.Client("token")
         c.set_sample_profile("sample1", [])
         r.assert_called_with(
@@ -63,7 +66,8 @@ class TestSampleAction:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_profile_automatic(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_profile_automatic(self, m, s, r):
         c = triage.Client("token")
         c.set_sample_profile_automatically("sample1")
         r.assert_called_with(
@@ -80,7 +84,8 @@ class TestSampleAction:
 class TestReport:
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_owned_samples(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_owned_samples(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
@@ -101,7 +106,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_public_samples(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_public_samples(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
@@ -122,7 +128,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_search(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_search(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
@@ -143,7 +150,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_search_pagination(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_search_pagination(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
@@ -164,7 +172,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_sample(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_sample(self, m, s, r):
         c = triage.Client("token")
         c.sample_by_id("sample1")
         r.assert_called_with(
@@ -175,7 +184,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_delete(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_delete(self, m, s, r):
         c = triage.Client("token")
         c.delete_sample("sample1")
         r.assert_called_with(
@@ -186,7 +196,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_static(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_static(self, m, s, r):
         c = triage.Client("token")
         c.static_report("sample1")
         r.assert_called_with(
@@ -197,7 +208,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_overview(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_overview(self, m, s, r):
         c = triage.Client("token")
         c.overview_report("sample1")
         r.assert_called_with(
@@ -208,7 +220,8 @@ class TestReport:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_task(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_task(self, m, s, r):
         c = triage.Client("token")
         c.task_report("sample1", "task1")
         r.assert_called_with(
@@ -220,7 +233,8 @@ class TestReport:
 class TestFile:
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_file(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_file(self, m, s, r):
         c = triage.Client("token")
         c.sample_task_file("sample1", "task1", "file1")
         r.assert_called_with(
@@ -230,7 +244,8 @@ class TestFile:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_tar(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_tar(self, m, s, r):
         c = triage.Client("token")
         c.sample_archive_tar("test1")
         r.assert_called_with(
@@ -240,7 +255,8 @@ class TestFile:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_zip(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_zip(self, m, s, r):
         c = triage.Client("token")
         c.sample_archive_zip("test1")
         r.assert_called_with(
@@ -251,7 +267,8 @@ class TestFile:
 class TestProfile:
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_list_profiles(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_list_profiles(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
@@ -272,7 +289,8 @@ class TestProfile:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_delete_profile(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_delete_profile(self, m, s, r):
         c = triage.Client("token")
         c.delete_profile("meme")
         r.assert_called_with(
@@ -283,7 +301,8 @@ class TestProfile:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_create_profile(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_create_profile(self, m, s, r):
         c = triage.Client("token")
         c.create_profile("meme", ["yes1","yes2"], "drop", 30)
         r.assert_called_with(

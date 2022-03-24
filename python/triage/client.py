@@ -363,9 +363,10 @@ class Client:
         else:
             raise ValueError("Platform not supported")
 
-        r =  self._new_request(
-                'GET', '/v0/samples/{0}/{1}/logs/{2}.json'.format(
-                    sample_id, task_id, log_file))
+        r = self._new_request(
+            'GET', '/v0/samples/{0}/{1}/logs/{2}.json'.format(
+                sample_id, task_id, log_file)
+        )
 
         with Session() as s:
             settings = s.merge_environment_settings(r.url, {}, None, False, None)
