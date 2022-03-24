@@ -12,7 +12,8 @@ class TestPaginator:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_no_data(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_no_data(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
@@ -33,7 +34,8 @@ class TestPaginator:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_next(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_next(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
@@ -55,7 +57,8 @@ class TestPaginator:
 
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
-    def test_no_next(self, s, r):
+    @patch.object(Session, 'merge_environment_settings')
+    def test_no_next(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
         m.json = Mock(return_value={
