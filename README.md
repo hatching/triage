@@ -1,3 +1,5 @@
+[![GoDoc](https://pkg.go.dev/badge/github.com/hatching/triage)](https://pkg.go.dev/github.com/hatching/triage@v1.0.0/go#pkg-index)
+
 Hatching Triage
 ===============
 
@@ -21,6 +23,10 @@ $ go get github.com/hatching/triage/go/cmd/triage
 ```bash
 $ pip install hatching-triage
 ```
+
+### Go Documentation
+
+[Go documentation can be found here](https://pkg.go.dev/github.com/hatching/triage@v1.0.0/go#pkg-index)
 
 ## Setting up authentication
 
