@@ -4,9 +4,10 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"log"
+	"os"
 
 	triage "github.com/hatching/triage/go"
 )
@@ -16,12 +17,22 @@ const (
 	Token  = "<YOUR-APIKEY-HERE>"
 )
 
+var password = "password"
+var fname = "some-sample-path"
+
 func main() {
 	client := triage.NewClientWithRootURL(Token, Triage)
-
+	f, err := os.Open(fname)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	sample, err := client.SubmitSampleFile(
-		context.Background(), "testfile", bytes.NewBufferString("hello\n"),
-		false, nil,
+		context.Background(),
+		fname,
+		f,
+		false,
+		nil,
+		&password,
 	)
 	if err != nil {
 		panic(err)
