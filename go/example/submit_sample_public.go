@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2021 Hatching B.V.
+// Copyright (C) 2022 Hatching B.V.
 // All rights reserved.
 
 package main
@@ -13,15 +13,14 @@ import (
 )
 
 const (
-	Triage = "https://api.tria.ge"
-	Token  = "<YOUR-APIKEY-HERE>"
+	Token = "<YOUR-APIKEY-HERE>"
 )
 
 var password = "password"
 var fname = "some-sample-path"
 
 func main() {
-	client := triage.NewClientWithRootURL(Token, Triage)
+	client := triage.NewClient(Token)
 	f, err := os.Open(fname)
 	if err != nil {
 		log.Fatalln(err)
