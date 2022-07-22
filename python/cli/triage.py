@@ -90,8 +90,12 @@ def prompt_select_profiles_for_files(profiles, pick):
     return rt
 
 def prompt_select_profile(c, sample):
+
     for events in c.sample_events(sample):
-        if events["status"] == "pending":
+        if "status" not in events and events["error"] == "NOT_FOUND":
+            print("sample not found")
+            return
+        elif events["status"] == "pending":
             print("waiting for static analysis to finish")
         elif events["status"] == "static_analysis":
             break
