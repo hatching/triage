@@ -464,7 +464,7 @@ class Client:
         Parameters:
             name (str): The name of the profile
             tags (list): Tags for the profile, list of strings
-            network (list): network used when running the sample (Currently available : "", "drop", "internet")
+            network (str): network used when running the sample (Currently available : "", "drop", "internet")
             timeout (int): The timeout of the profile
 
         Returns:
