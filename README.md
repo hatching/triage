@@ -15,7 +15,7 @@ well as Python. For a Java library, please see
 ### Installing the Go client
 
 ```bash
-$ go get github.com/hatching/triage/go/cmd/triage
+$ go install github.com/hatching/triage/go/cmd/triage@latest
 ```
 
 ### Installing the Python client
