@@ -352,13 +352,16 @@ class Client:
             raise ValueError("Task does not exist")
 
         log_file = None
-        if "windows" in task["platform"]:
+        task_platform = task.get("platform", "")
+        if not task_platform:
+            task_platform = task.get("os", "")
+        if "windows" in task_platform:
             log_file = "onemon"
-        elif "linux" in task["platform"] or "ubuntu" in task["platform"]:
+        elif "linux" in task_platform or "ubuntu" in task_platform:
             log_file = "stahp"
-        elif "macos" in task["platform"]:
+        elif "macos" in task_platform:
             log_file = "bigmac"
-        elif "android" in task["platform"]:
+        elif "android" in task_platform:
             log_file = "droidy"
         else:
             raise ValueError("Platform not supported")
