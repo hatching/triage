@@ -85,6 +85,28 @@ class TestReport:
     @patch('triage.Client._new_request')
     @patch.object(Session, 'send')
     @patch.object(Session, 'merge_environment_settings')
+    def test_org_samples(self, m, s, r):
+        c = triage.Client("token")
+        m = Mock()
+        m.json = Mock(return_value={
+            "data": [{"name": "test"}],
+            "next": None
+        })
+        s.return_value = m
+
+        for i in c.org_samples():
+            assert i["name"] == "test"
+        m.json.assert_called_once()
+
+        r.assert_called_with(
+            "GET",
+            "/v0/samples?subset=org&limit=20",
+            None
+        )
+
+    @patch('triage.Client._new_request')
+    @patch.object(Session, 'send')
+    @patch.object(Session, 'merge_environment_settings')
     def test_owned_samples(self, m, s, r):
         c = triage.Client("token")
         m = Mock()
