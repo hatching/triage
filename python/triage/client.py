@@ -351,21 +351,22 @@ class Client:
             ]
         """
         overview = self.overview_report(sample_id)
-        for t in overview["tasks"]:
-            if t["name"] == task_id:
+        for t in overview.get("tasks", []):
+            if t.get("name") == task_id:
                 task = t
                 break
         else:
             raise ValueError("Task does not exist")
 
         log_file = None
-        if "windows" in task["platform"]:
+        platform = task.get("platform") or task.get("os")
+        if "windows" in platform:
             log_file = "onemon"
-        elif "linux" in task["platform"] or "ubuntu" in task["platform"]:
+        elif "linux" in platform or "ubuntu" in platform:
             log_file = "stahp"
-        elif "macos" in task["platform"]:
+        elif "macos" in platform:
             log_file = "bigmac"
-        elif "android" in task["platform"]:
+        elif "android" in platform:
             log_file = "droidy"
         else:
             raise ValueError("Platform not supported")

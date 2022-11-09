@@ -46,7 +46,7 @@ def cli():
 def authenticate(token, url):
     tokenfile = token_file()
     if os.path.exists(tokenfile):
-        print("Tokenfile already exists, currenty appending tokens is not "
+        print("Tokenfile already exists, currently appending tokens is not "
             "supported, please edit/remove: ", tokenfile)
         return
 
@@ -54,7 +54,7 @@ def authenticate(token, url):
         f.write("%s %s" % (url, token))
 
 def prompt_select_files(static):
-    print("Please select the files from the archive to analyize/")
+    print("Please select the files from the archive to analyze/")
     print("Leave blank to continue with the emphasized files and automatic "
         "profiles.")
 
@@ -176,16 +176,16 @@ def submit(target, interactive, profile):
         return
 
     print("Sample submitted")
-    print("  ID:       %s" % r["id"])
-    print("  Status:   %s" % r["status"])
+    print("  ID:       %s" % r.get("id"))
+    print("  Status:   %s" % r.get("status"))
     if f:
-        print("  Filename: %s" % r["filename"])
+        print("  Filename: %s" % r.get("filename"))
     else:
-        print("  URL:      %s" % r["url"])
+        print("  URL:      %s" % r.get("url"))
 
     if interactive:
         time.sleep(2)
-        prompt_select_profile(c, r["id"])
+        prompt_select_profile(c, r.get("id"))
 
 @cli.command("select-profile")
 @click.argument("sample")
@@ -194,28 +194,28 @@ def select_profile(sample):
     prompt_select_profile(c, sample)
 
 def paginator_format(c, i):
-    target = i["url"] if i.get("url") else i.get("filename", "-")
-    if i["status"] == "reported":
+    target = i.get("url") if i.get("url") else i.get("filename", "-")
+    if i.get("status") == "reported":
         try:
             overview = c.overview_report(i["id"])
         except ServerError:
             return
-        if len(overview["analysis"].get("family", [])) >= 1:
+        if len(overview.get("analysis", {}).get("family", [])) >= 1:
             print("%s\t%s, %s\t%s" % (
-                overview["analysis"]["score"],
-                i["id"],
-                overview["analysis"]["family"],
+                overview.get("analysis", {}).get("score", "N/A"),
+                i.get("id"),
+                overview.get("analysis", {}).get("family"),
                 target
             ))
         else:
             print("%s\t%s\t%s" % (
-                overview["analysis"]["score"],
-                i["id"],
+                overview.get("analysis", {}).get("score", "N/A"),
+                i.get("id"),
                 target
             ))
     else:
         print(".\t%s\t%s" % (
-            i["id"],
+            i.get("id"),
             target
         ))
 
@@ -281,11 +281,11 @@ def delete(sample):
 @click.argument("tasks", nargs=-1)
 def onemon(sample, tasks):
     c = client_from_env()
-    for k in c.overview_report(sample)["tasks"]:
-        if k["kind"] == "behavioral":
-            if tasks and k["name"] not in tasks:
+    for k in c.overview_report(sample).get("tasks", []):
+        if k.get("kind") == "behavioral":
+            if tasks and k.get("name") not in tasks:
                 continue
-            for line in c.kernel_report(sample, k["name"]):
+            for line in c.kernel_report(sample, k.get("name")):
                 print(json.dumps(line, separators=(',', ':')))
 
 @cli.command("search", help="Use https://tria.ge/docs/cloud-api/samples/#get-search for query formats")
@@ -300,20 +300,20 @@ def search(query, n):
 @cli.command("report")
 @click.argument("sample")
 @click.option("--static", is_flag=True, help="Query the static report")
-@click.option("-t", "--task", help= "The ID of the report")
+@click.option("-t", "--task", help="The ID of the report")
 def report(sample, static, task):
     c = client_from_env()
     if static:
         print("~Static Report~")
         r = c.static_report(sample)
-        for f in r["files"]:
+        for f in r.get("files", []):
             print("%s %s" % (
-                f["filename"],
-                "(selected)" if f["selected"] else "")
+                f.get("filename"),
+                "(selected)" if f.get("selected") else "")
             )
-            print("  md5:", f["md5"])
+            print("  md5:", f.get("md5"))
             print("  tags:", f.get("tags", []))
-            print("  kind:", f["kind"])
+            print("  kind:", f.get("kind"))
     elif task:
         print("~%s Report~" % task)
         r = c.task_report(sample, task)
@@ -321,26 +321,27 @@ def report(sample, static, task):
         if err:
             print(err)
             return
-        print(r["task"]["target"])
-        print("  md5:", r["task"]["md5"])
-        print("  score:", r["analysis"]["score"])
-        print("  tags:", r["analysis"].get("tags", []))
+
+        print(r.get("task", {}).get("target"))
+        print("  md5:", r.get("task", {}).get("md5"))
+        print("  score:", r.get("analysis", {}).get("score"))
+        print("  tags:", r.get("analysis", {}).get("tags", []))
     else:
         print("~Overview~")
         r = c.overview_report(sample)
         if r.get("errors"):
             print("Triage produced the following errors", r["errors"])
-        print(r["sample"]["target"])
-        print("  md5:", r["sample"]["md5"])
-        print("  score:", r["analysis"]["score"])
-        print("  family:", r["analysis"].get("family"))
-        print("  tags:", r["analysis"].get("tags", []))
+        print(r.get("sample", {}).get("target"))
+        print("  md5:", r.get("sample", {}).get("md5"))
+        print("  score:", r.get("analysis", {}).get("score"))
+        print("  family:", r.get("analysis", {}).get("family"))
+        print("  tags:", r.get("analysis", {}).get("tags", []))
         print()
         for task in r.get("tasks", []):
-            print(" ", task["name"])
+            print(" ", task.get("name"))
             print("    score:", task.get("score", "N/A"))
-            if task["kind"] != "static":
-                print("    platform:", task["platform"])
+            if task.get("kind") != "static":
+                print("    platform:", task.get("platform") or task.get("os"))
             print("    tags:", task.get("tags", []))
 
 @cli.command("create-profile")
@@ -369,11 +370,11 @@ def delete_profile(profile):
 def list_profiles(n):
     c = client_from_env()
     for i in c.profiles(max=n):
-        print(i["name"])
-        print("  timeout:", i["timeout"])
-        print("  network:", i["network"])
+        print(i.get("name"))
+        print("  timeout:", i.get("timeout"))
+        print("  network:", i.get("network"))
         print("  tags:", i.get("tags", []))
-        print("  id:", i["id"])
+        print("  id:", i.get("id"))
 
 if __name__ == "__main__":
     cli()
