@@ -58,13 +58,19 @@ func (c *Client) SampleTaskKernelReport(ctx context.Context, sampleID, taskID st
 
 	var proto string
 	switch {
-	case strings.Contains(task.Platform, "windows"):
+	case strings.Contains(task.OS, "windows"),
+		strings.Contains(task.Platform, "windows"):
 		proto = "onemon.json"
-	case strings.Contains(task.Platform, "linux"), strings.Contains(task.Platform, "ubuntu"):
+	case strings.Contains(task.OS, "linux"),
+		strings.Contains(task.OS, "ubuntu"),
+		strings.Contains(task.Platform, "linux"),
+		strings.Contains(task.Platform, "ubuntu"):
 		proto = "stahp.json"
-	case strings.Contains(task.Platform, "macos"):
+	case strings.Contains(task.OS, "macos"),
+		strings.Contains(task.Platform, "macos"):
 		proto = "bigmac.json"
-	case strings.Contains(task.Platform, "android"):
+	case strings.Contains(task.OS, "android"),
+		strings.Contains(task.Platform, "android"):
 		proto = "droidy.json"
 	default:
 		return nil, fmt.Errorf("Platform not supported")

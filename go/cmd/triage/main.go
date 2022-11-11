@@ -709,7 +709,11 @@ func (c *Cli) sampleReport(arg0, sampleID string, static bool, taskID string) {
 			fmt.Printf("  %s\n", task.Name)
 			fmt.Printf("    score: %v\n", task.Score)
 			if task.Kind != "static" {
-				fmt.Printf("    platform: %s\n", task.Platform)
+				if task.OS != "" {
+					fmt.Printf("    platform: %s\n", task.OS)
+				} else {
+					fmt.Printf("    platform: %s\n", task.Platform)
+				}
 			}
 			fmt.Printf("    tags: %s\n", task.Tags)
 		}
