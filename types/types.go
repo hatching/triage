@@ -60,6 +60,7 @@ type (
 		SHA1   string `json:"sha1,omitempty"`
 		SHA256 string `json:"sha256,omitempty"`
 		SHA512 string `json:"sha512,omitempty"`
+		SSDeep string `json:"ssdeep,omitempty"`
 	}
 )
 
@@ -91,8 +92,10 @@ type (
 		SHA1            string   `json:"sha1,omitempty"`
 		SHA256          string   `json:"sha256,omitempty"`
 		SHA512          string   `json:"sha512,omitempty"`
+		SSDeep          string   `json:"ssdeep,omitempty"`
 		Filetype        string   `json:"filetype,omitempty"`
 		StaticTags      []string `json:"static_tags,omitempty"`
+		UserTags        []string `json:"user_tags,omitempty"`
 	}
 	ReportedFailure struct {
 		Task    string `json:"task,omitempty"`
@@ -137,8 +140,9 @@ type (
 		URL         string      `json:"url,omitempty"`
 	}
 	NetworkReport struct {
-		Flows    []NetworkFlow    `json:"flows,omitempty"`
-		Requests []NetworkRequest `json:"requests,omitempty"`
+		Flows    []NetworkFlow        `json:"flows,omitempty"`
+		Requests []NetworkRequest     `json:"requests,omitempty"`
+		IPs      map[string]NetworkIP `json:"ips,omitempty"`
 	}
 	Dump struct {
 		At     uint32 `json:"at"`
@@ -147,12 +151,16 @@ type (
 		Path   string `json:"path,omitempty"`
 		Name   string `json:"name,omitempty"`
 		Kind   string `json:"kind,omitempty"`
+		Origin string `json:"origin,omitempty"`
 		Addr   uint64 `json:"addr,omitempty"`
 		Length uint64 `json:"length,omitempty"`
 		MD5    string `json:"md5,omitempty"`
 		SHA1   string `json:"sha1,omitempty"`
 		SHA256 string `json:"sha256,omitempty"`
 		SHA512 string `json:"sha512,omitempty"`
+		SSDeep string `json:"ssdeep,omitempty"`
+		Size   int    `json:"size,omitempty"`
+		NSRL   string `json:"nsrl,omitempty"`
 	}
 	Extract struct {
 		DumpedFile  string       `json:"dumped_file,omitempty"`
@@ -194,9 +202,11 @@ type (
 		JA3       string   `json:"tls_ja3,omitempty"`
 		JA3S      string   `json:"tls_ja3s,omitempty"`
 		SNI       string   `json:"tls_sni,omitempty"`
-		Country   string   `json:"country,omitempty"`
-		AS        string   `json:"as_num,omitempty"`
-		Org       string   `json:"as_org,omitempty"`
+	}
+	NetworkIP struct {
+		CIDR string `json:"cidr,omitempty"`
+		CC   string `json:"cc,omitempty"`
+		ASN  string `json:"asn,omitempty"`
 	}
 	NetworkRequest struct {
 		Flow       int                    `json:"flow,omitempty"`
@@ -217,6 +227,7 @@ type (
 		Campaign     string        `json:"campaign,omitempty"`
 		Mutex        []string      `json:"mutex,omitempty"`
 		Decoy        []string      `json:"decoy,omitempty"`
+		Wallet       []string      `json:"wallet,omitempty"`
 		DNS          []string      `json:"dns,omitempty"`
 		Keys         []Key         `json:"keys,omitempty"`
 		Webinject    []string      `json:"webinject,omitempty"`
@@ -252,6 +263,7 @@ type (
 		Port     int    `json:"port,omitempty"`
 		User     string `json:"username"`
 		Pass     string `json:"password"`
+		EmailTo  string `json:"email_to,omitempty"`
 	}
 	NetworkDomainRequest struct {
 		Domains   []string   `json:"domains,omitempty"`
@@ -308,21 +320,23 @@ type (
 		IOCs      *OverviewIOCs `json:"iocs,omitempty"`
 	}
 	TaskSummary struct {
-		Sample   string   `json:"sample"`
-		Kind     string   `json:"kind,omitempty"`
-		Name     string   `json:"name,omitempty"`
-		Status   string   `json:"status,omitempty"`
-		TTP      []string `json:"ttp,omitempty"`
-		Tags     []string `json:"tags,omitempty"`
-		Score    int      `json:"score,omitempty"`
-		Target   string   `json:"target,omitempty"`
-		Backend  string   `json:"backend,omitempty"`
-		Resource string   `json:"resource,omitempty"`
-		Platform string   `json:"platform,omitempty"`
-		TaskName string   `json:"task_name,omitempty"`
-		Failure  string   `json:"failure,omitempty"`
-		QueueID  int64    `json:"queue_id,omitempty"`
-		Pick     string   `json:"pick,omitempty"`
+		Sample     string   `json:"sample"`
+		Kind       string   `json:"kind,omitempty"`
+		Name       string   `json:"name,omitempty"`
+		Status     string   `json:"status,omitempty"`
+		TTP        []string `json:"ttp,omitempty"`
+		Tags       []string `json:"tags,omitempty"`
+		Score      int      `json:"score,omitempty"`
+		Target     string   `json:"target,omitempty"`
+		Backend    string   `json:"backend,omitempty"`
+		Resource   string   `json:"resource,omitempty"`
+		Platform   string   `json:"platform,omitempty"` // Deprecated
+		TaskName   string   `json:"task_name,omitempty"`
+		Failure    string   `json:"failure,omitempty"`
+		Pick       string   `json:"pick,omitempty"`
+		OS         string   `json:"os,omitempty"`
+		Timeout    int      `json:"timeout,omitempty"`
+		Signatures int      `json:"sigs,omitempty"`
 	}
 	OverviewAnalysis struct {
 		Score  int      `json:"score"`
