@@ -55,7 +55,7 @@ class Client:
         except exceptions.HTTPError as err:
             raise ServerError(err)
 
-    def submit_sample_file(self, filename, file, interactive=False, profiles=None, password=None):
+    def submit_sample_file(self, filename, file, interactive=False, profiles=None, password=None, timeout=150, network="internet"):
         """
         Submit a file for analysis on Triage.
 
@@ -76,6 +76,10 @@ class Client:
                 ]
             password (str):
                 Password for the archive sample
+            timeout: (int):
+                Timeout of the analysis
+            network (str):
+                Type of network routing to use ("internet" | "drop" | "tor" | "sim200" | "sim404" | "simnx")
         Returns:
             response (dict):
                 {
@@ -93,6 +97,10 @@ class Client:
             'kind': 'file',
             'interactive': interactive,
             'profiles': profiles,
+            'defaults': {
+                'timeout': timeout,
+                'network': network
+            }
         }
         if password:
             d['password'] = password
