@@ -55,7 +55,7 @@ class Client:
         except exceptions.HTTPError as err:
             raise ServerError(err)
 
-    def submit_sample_file(self, filename, file, interactive=False, profiles=None, password=None, timeout=60, network="internet"):
+    def submit_sample_file(self, filename, file, interactive=False, profiles=None, password=None, timeout=150, network="internet"):
         """
         Submit a file for analysis on Triage.
 
