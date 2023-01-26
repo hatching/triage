@@ -79,7 +79,7 @@ class Client:
             timeout: (int):
                 Timeout of the analysis
             network (str):
-                Type of network routing to use ("internet" | "drop" | "tor")
+                Type of network routing to use ("internet" | "drop" | "tor" | "sim200" | "sim404" | "simnx")
         Returns:
             response (dict):
                 {
