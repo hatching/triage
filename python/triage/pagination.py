@@ -9,7 +9,7 @@ class Paginator:
         self._limit = 200
         self._current_page = []
         self._eof = False
-        self._max = max
+        self._max = int(max)
         self._counter = 0
 
     def __iter__(self):
