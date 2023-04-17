@@ -23,7 +23,7 @@ setuptools.setup(
     },
     install_requires=[
         "appdirs==1.4.4",
-        "click==8.0.3",
+        "click==8.1.3",
         "requests>=2.25.1, <3"
     ],
     python_requires='>=3.6',
