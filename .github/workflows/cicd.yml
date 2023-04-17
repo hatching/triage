@@ -2,12 +2,13 @@ on:
   - push
 
 jobs:
-  runs-on: ubuntu-latest
-  steps:
-    - name: build
-      run: make -C go
+  tests:
+    runs-on: hatching.io/cicd-build-triage:18.04
+    steps:
+      - name: build
+        run: make -C go
 
-    - name: test
-      run:
-        - make test
-        - make -C python test
+      - name: test
+        run: |
+            make test
+            make -C python test
