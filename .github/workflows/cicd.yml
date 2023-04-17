@@ -3,12 +3,17 @@ on:
 
 jobs:
   tests:
-    runs-on: hatching.io/cicd-build-triage:18.04
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: build
-        run: make -C go
+        run: |
+          sudo apt update
+          sudo apt install golang-go make
+          make -C go
+          make -C python
 
       - name: test
         run: |
-            make test
-            make -C python test
+          make -C go test
+          make -C python test
