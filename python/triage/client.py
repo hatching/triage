@@ -1,17 +1,16 @@
-# Copyright (C) 2020-2022 Hatching B.V
+# Copyright (C) 2020-2023 Hatching B.V
 # All rights reserved.
 
 from io import BytesIO
 from triage.pagination import Paginator
+from .__version__ import __version__
 from requests import Request, Session, exceptions, utils
 
 import binascii
 import urllib3
 import json
 import os
-import sys
-
-version = 'alpha'
+import platform
 
 urllib3.disable_warnings()
 
@@ -23,10 +22,11 @@ class Client:
     def _new_request(self, method, path, j=None, b=None, headers=None):
         if headers is None:
             headers = {}
+
         headers = {
-            'Authorization': 'Bearer {0}'.format(self.token),
-            'User-Agent': 'Triage Python Client/{0} Python/{1}'
-                .format(version, sys.version.split(' ')[0]),
+            "Authorization": f"Bearer {self.token}",
+            "User-Agent": f"Python/{platform.python_version()} "
+                          f"Triage Python Client/{__version__}",
             **headers
         }
         if j:

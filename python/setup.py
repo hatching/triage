@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2022 Hatching B.V.
+# Copyright (C) 2020-2023 Hatching B.V.
 # All rights reserved.
 
 import setuptools
@@ -6,9 +6,14 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+# Execute this so that __version__ is set. Don't import it, this causes
+# installation fails on missing requirements.
+with open("triage/__version__.py", "rb") as fp:
+    exec(fp.read())
+
 setuptools.setup(
     name="hatching-triage",
-    version="0.1.10",
+    version=__version__,
     author="Hatching B.V.",
     author_email="info@hatching.io",
     description="API client and CLI for Hatching Triage",
