@@ -335,7 +335,7 @@ func (c *Cli) submitSampleFile(arg0, target string, interactive bool, profiles [
 		}
 		defer fd.Close()
 		name := filepath.Base(sampleFile)
-		sample, submitErr = c.client.SubmitSampleFile(context.Background(), name, fd, interactive, profileSelections, nil)
+		sample, submitErr = c.client.SubmitSampleFile(context.Background(), name, fd, interactive, profileSelections, nil, nil, nil)
 
 	} else if sampleURL != "" {
 		sample, submitErr = c.client.SubmitSampleURL(context.Background(), sampleURL, interactive, profileSelections)

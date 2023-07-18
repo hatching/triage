@@ -71,26 +71,45 @@ type ProfileSelection struct {
 	Pick    string `json:"pick"`
 }
 
+type Defaults struct {
+	Timeout int    `json:"timeout"`
+	Network string `json:"network"`
+}
+
 type SampleEvent struct {
 	Sample
 	Error error
 }
 
-func (c *Client) SubmitSampleFile(ctx context.Context, filename string, file io.Reader, interactive bool, profiles []ProfileSelection, password *string) (*Sample, error) {
+func (c *Client) SubmitSampleFile(ctx context.Context, filename string, file io.Reader, interactive bool, profiles []ProfileSelection, password *string, timeout *int, network *string) (*Sample, error) {
 	var pw string
+	net := "internet"
+	tmo := 150
 	if password != nil && *password != "" {
 		pw = *password
 	}
+	if network != nil && *network != "" {
+		net = *network
+	}
+	if timeout != nil && *timeout != 0 {
+		tmo = *timeout
+	}
+
 	request, err := json.Marshal(struct {
 		Kind        string             `json:"kind"`
 		Interactive bool               `json:"interactive"`
 		Profiles    []ProfileSelection `json:"profiles"`
 		Password    string             `json:"password,omitempty"`
+		Defaults    Defaults           `json:"defaults"`
 	}{
 		Kind:        "file",
 		Interactive: interactive,
 		Profiles:    profiles,
 		Password:    pw,
+		Defaults: Defaults{
+			Timeout: tmo,
+			Network: net,
+		},
 	})
 	if err != nil {
 		return nil, err
