@@ -125,3 +125,25 @@ func TestArchiveZIP(t *testing.T) {
 		t.Fatal("Unexpected method")
 	}
 }
+
+func TestSamplePath(t *testing.T) {
+	ctx := context.Background()
+	m := ClientMock{}
+	m.Response = nil
+	m.StatusCode = 200
+	client := &Client{
+		httpClient: &m,
+	}
+	type test struct {
+		Name string
+	}
+	if err := client.SamplePath(ctx, "test-123", "/output.json", &test{}); err != nil {
+		t.Fatal(err)
+	}
+	if m.RequestUrl != "/v0/samples/test-123/output.json" {
+		t.Fatalf("Expected other request url %v", m.RequestUrl)
+	}
+	if m.RequestMethod != "GET" {
+		t.Fatal("Unexpected method")
+	}
+}
