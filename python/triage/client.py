@@ -107,7 +107,7 @@ class Client:
                 'network': network
             }
         }
-        if len(tags):
+        if tags:
             d['user_tags'] = tags
 
         if escape_filename:
