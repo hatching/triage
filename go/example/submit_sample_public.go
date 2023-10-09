@@ -18,6 +18,8 @@ const (
 
 var password = "password"
 var fname = "some-sample-path"
+var timeout = 150
+var network = "internet"
 
 func main() {
 	client := triage.NewClient(Token)
@@ -32,6 +34,8 @@ func main() {
 		false,
 		nil,
 		&password,
+		&timeout,
+		&network,
 	)
 	if err != nil {
 		panic(err)
